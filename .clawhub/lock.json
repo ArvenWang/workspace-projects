@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "skills": {
+    "duckduckgo-search": {
+      "version": "1.0.0",
+      "installedAt": 1771768406149
+    },
+    "x-twitter": {
+      "version": "2.3.1",
+      "installedAt": 1771768419160
+    },
+    "youtube-ultimate": {
+      "version": "4.2.2",
+      "installedAt": 1771768421012
+    },
+    "baidu-search": {
+      "version": "1.1.0",
+      "installedAt": 1771768422765
+    },
+    "recursive-self-improvement": {
+      "version": "1.0.0",
+      "installedAt": 1771768430932
+    },
+    "self-improving-agent": {
+      "version": "1.0.10",
+      "installedAt": 1771768434143
+    },
+    "agent-training": {
+      "version": "1.0.0",
+      "installedAt": 1771768436121
+    },
+    "macos-desktop-control": {
+      "version": "1.0.0",
+      "installedAt": 1771768442944
+    },
+    "browser-use": {
+      "version": "1.0.2",
+      "installedAt": 1771768444459
+    },
+    "system-info": {
+      "version": "1.0.0",
+      "installedAt": 1771768446538
+    },
+    "firecrawl-search": {
+      "version": "1.0.0",
+      "installedAt": 1771768454290
+    },
+    "perplexity": {
+      "version": "1.0.0",
+      "installedAt": 1771768455835
+    },
+    "self-reflection": {
+      "version": "1.1.1",
+      "installedAt": 1771768457564
+    },
+    "realtime-crypto-price-api": {
+      "version": "1.0.0",
+      "installedAt": 1771779008953
+    },
+    "binance-pro": {
+      "version": "1.0.0",
+      "installedAt": 1771779028258
+    },
+    "crypto-trading-bot": {
+      "version": "1.0.0",
+      "installedAt": 1771779030265
+    },
+    "crypto-prices": {
+      "version": "1.1.0",
+      "installedAt": 1771779032718
+    }
+  }
+}

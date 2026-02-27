@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 实时交易监控 | Trading Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card-title {
+            font-size: 0.9em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .card-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .positive {
+            color: #00d084;
+        }
+        
+        .negative {
+            color: #ff4757;
+        }
+        
+        .neutral {
+            color: #ffa502;
+        }
+        
+        .btc-price {
+            font-size: 3em;
+            background: linear-gradient(45deg, #f7931a, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .chart-container {
+            grid-column: 1 / -1;
+            height: 400px;
+            position: relative;
+        }
+        
+        #priceChart {
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+        
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online {
+            background: #00d084;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .update-time {
+            text-align: center;
+            color: #666;
+            margin-top: 20px;
+            font-size: 0.85em;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d084, #00d4ff);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        .position-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .position-item {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .position-label {
+            font-size: 0.75em;
+            color: #888;
+            margin-bottom: 5px;
+        }
+        
+        .position-value {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔥 实时交易监控</h1>
+            <div class="subtitle">
+                <span class="status-indicator status-online"></span>
+                3天50%盈利挑战 | BTC/USDT 合约交易
+            </div>
+        </header>
+        
+        <div class="grid">
+            <!-- BTC价格 -->
+            <div class="card">
+                <div class="card-title">💰 BTC/USDT 价格</div>
+                <div class="card-value btc-price" id="btcPrice">--</div>
+                <div class="subtitle" id="priceChange">--</div>
+            </div>
+            
+            <!-- 账户余额 -->
+            <div class="card">
+                <div class="card-title">💵 合约账户余额</div>
+                <div class="card-value" id="balance">--</div>
+                <div class="subtitle">初始: 50 USDT</div>
+            </div>
+            
+            <!-- 盈亏 -->
+            <div class="card">
+                <div class="card-title">📈 盈亏情况</div>
+                <div class="card-value" id="pnl">--</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+                <div class="subtitle" style="margin-top: 5px;">目标: 50% (75 USDT)</div>
+            </div>
+            
+            <!-- 当前持仓 -->
+            <div class="card">
+                <div class="card-title">📊 当前持仓</div>
+                <div id="positionStatus">
+                    <div class="card-value neutral">无持仓</div>
+                </div>
+                <div class="position-info" id="positionDetails" style="display: none;">
+                    <div class="position-item">
+                        <div class="position-label">数量</div>
+                        <div class="position-value" id="posAmount">--</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">入场价</div>
+                        <div class="position-value" id="posEntry">--</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">未实现盈亏</div>
+                        <div class="position-value" id="posPnl">--</div>
+                    </div>
+                    <div class="position-item">
+                        <div class="position-label">杠杆</div>
+                        <div class="position-value">5x</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 价格图表 -->
+            <div class="card chart-container">
+                <div class="card-title">📉 价格走势 (最近100个点)</div>
+                <canvas id="priceChart"></canvas>
+            </div>
+            
+            <!-- 交易日志 -->
+            <div class="card">
+                <div class="card-title">📝 实时交易日志</div>
+                <div class="log-container" id="tradeLogs">
+                    <div class="log-entry">加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="update-time">
+            最后更新: <span id="lastUpdate">--</span> | 自动刷新: 5秒
+        </div>
+    </div>
+    
+    <script>
+        // 价格历史用于图表
+        let priceHistory = [];
+        let lastPrice = null;
+        
+        // 获取数据
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                console.error('获取数据失败:', error);
+            }
+        }
+        
+        // 更新UI
+        function updateUI(data) {
+            // 时间戳
+            document.getElementById('lastUpdate').textContent = data.timestamp;
+            
+            // BTC价格
+            if (data.price) {
+                const priceEl = document.getElementById('btcPrice');
+                const oldPrice = parseFloat(priceEl.textContent.replace('$', '').replace(',', '')) || 0;
+                priceEl.textContent = '$' + data.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                
+                // 价格变化
+                if (oldPrice > 0) {
+                    const change = ((data.price - oldPrice) / oldPrice * 100).toFixed(3);
+                    const changeEl = document.getElementById('priceChange');
+                    changeEl.textContent = (change >= 0 ? '+' : '') + change + '%';
+                    changeEl.className = change >= 0 ? 'positive' : 'negative';
+                }
+            }
+            
+            // 账户信息
+            if (data.account) {
+                document.getElementById('balance').textContent = data.account.balance.toFixed(2) + ' USDT';
+                
+                const pnlEl = document.getElementById('pnl');
+                const pnl = data.account.pnl;
+                pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + ' (' + data.account.pnl_pct.toFixed(2) + '%)';
+                pnlEl.className = pnl >= 0 ? 'card-value positive' : 'card-value negative';
+                
+                // 进度条
+                const progress = Math.max(0, Math.min(100, (data.account.pnl_pct / 50) * 100));
+                document.getElementById('progressBar').style.width = progress + '%';
+            }
+            
+            // 持仓信息
+            if (data.position && parseFloat(data.position.positionAmt) !== 0) {
+                document.getElementById('positionStatus').innerHTML = 
+                    '<div class="card-value ' + (parseFloat(data.position.positionAmt) > 0 ? 'positive' : 'negative') + '">' +
+                    (parseFloat(data.position.positionAmt) > 0 ? '🟢 做多' : '🔴 做空') + '</div>';
+                document.getElementById('positionDetails').style.display = 'grid';
+                document.getElementById('posAmount').textContent = data.position.positionAmt;
+                document.getElementById('posEntry').textContent = '$' + parseFloat(data.position.entryPrice).toFixed(2);
+                
+                const pnl = parseFloat(data.position.unRealizedProfit);
+                const pnlEl = document.getElementById('posPnl');
+                pnlEl.textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + ' USDT';
+                pnlEl.className = 'position-value ' + (pnl >= 0 ? 'positive' : 'negative');
+            } else {
+                document.getElementById('positionStatus').innerHTML = '<div class="card-value neutral">无持仓</div>';
+                document.getElementById('positionDetails').style.display = 'none';
+            }
+            
+            // 交易日志
+            if (data.trades && data.trades.length > 0) {
+                const logsEl = document.getElementById('tradeLogs');
+                logsEl.innerHTML = data.trades.map(trade => {
+                    let colorClass = '';
+                    if (trade.includes('🟢') || trade.includes('盈利')) colorClass = 'positive';
+                    if (trade.includes('🔴') || trade.includes('亏损')) colorClass = 'negative';
+                    if (trade.includes('❌')) colorClass = 'negative';
+                    return '<div class="log-entry ' + colorClass + '">' + escapeHtml(trade) + '</div>';
+                }).join('');
+                logsEl.scrollTop = logsEl.scrollHeight;
+            }
+            
+            // 更新图表
+            if (data.price_history) {
+                priceHistory = data.price_history;
+                drawChart();
+            }
+        }
+        
+        // 绘制图表
+        function drawChart() {
+            const canvas = document.getElementById('priceChart');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置canvas尺寸
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            if (priceHistory.length < 2) return;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            
+            // 计算价格范围
+            const prices = priceHistory.map(p => p.price);
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            const priceRange = maxPrice - minPrice || 1;
+            
+            // 清空画布
+            ctx.fillStyle = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 绘制网格
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (height - 2 * padding) * i / 5;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+                
+                // Y轴标签
+                const price = maxPrice - priceRange * i / 5;
+                ctx.fillStyle = '#888';
+                ctx.font = '12px sans-serif';
+                ctx.fillText('$' + price.toFixed(0), 5, y + 4);
+            }
+            
+            // 绘制价格线
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            priceHistory.forEach((point, index) => {
+                const x = padding + (width - 2 * padding) * index / (priceHistory.length - 1);
+                const y = padding + (height - 2 * padding) * (1 - (point.price - minPrice) / priceRange);
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // 绘制渐变填充
+            ctx.lineTo(width - padding, height - padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.closePath();
+            const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
+            gradient.addColorStop(0, 'rgba(0, 212, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        }
+        
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 初始加载和定时刷新
+        fetchData();
+        setInterval(fetchData, 5000); // 每5秒刷新
+        
+        // 窗口大小改变时重绘图表
+        window.addEventListener('resize', drawChart);
+    </script>
+</body>
+</html>

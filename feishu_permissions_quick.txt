@@ -1,0 +1,55 @@
+# 飞书机器人权限列表 - 快速复制版
+
+## 必须权限（复制到飞书权限搜索框逐个添加）
+
+### 消息类（7个）
+im:message:send
+im:message.group_msg
+im:message:send_as_bot
+im:resource
+im:message.file:readonly
+im:message.group_msg:readonly
+im:chat:readonly
+
+### 会话类（1个）
+im:chat
+
+### 用户类（1-2个）
+contact:user.base:readonly
+contact:user.department:readonly
+
+### 云文档类（可选，3个）
+drive:drive:readonly
+drive:file:readonly
+drive:file:write
+
+---
+
+## 必须订阅的事件（复制到飞书事件订阅）
+
+im.message.receive_v1
+im.message.file.receive_v1
+im.message.image.receive_v1
+im.message.group_message.receive_v1
+
+---
+
+## 使用说明
+
+1. 复制上面的权限key，在飞书开放平台 -> 权限管理 -> 搜索并添加
+2. 复制上面的事件key，在飞书开放平台 -> 事件订阅 -> 添加事件
+3. 权限添加完成后点击"批量更新权限"
+4. 事件添加后配置请求URL（你的Gateway地址）
+5. 发布应用使配置生效
+
+---
+
+## 核心权限说明
+
+| 权限 | 用途 | 是否必须 |
+|------|------|----------|
+| im:resource | 访问图片/文件资源 | ✅ 必须 |
+| im:message.file:readonly | 接收文件 | ✅ 必须 |
+| im:message.image.receive_v1 | 接收图片事件 | ✅ 必须 |
+| im:message.file.receive_v1 | 接收文件事件 | ✅ 必须 |
+| im:message:send | 发送消息 | ✅ 必须 |

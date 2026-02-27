@@ -1,0 +1,31 @@
+{
+  "scopes": {
+    "tenant": [
+      "im:message:send",
+      "im:message.group_msg",
+      "im:message:send_as_bot",
+      "im:resource",
+      "im:message.file:readonly",
+      "im:message.group_msg:readonly",
+      "im:chat:readonly",
+      "im:chat",
+      "contact:user.base:readonly",
+      "contact:user.department:readonly",
+      "drive:drive:readonly",
+      "drive:file:readonly",
+      "drive:file:write"
+    ],
+    "user": [
+      "im:message:send",
+      "im:message.group_msg",
+      "im:message:send_as_bot",
+      "im:resource",
+      "im:message.file:readonly",
+      "im:message.group_msg:readonly",
+      "im:chat:readonly",
+      "im:chat",
+      "contact:user.base:readonly",
+      "contact:user.department:readonly"
+    ]
+  }
+}
