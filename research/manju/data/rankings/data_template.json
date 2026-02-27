@@ -1,0 +1,15 @@
+{
+  "platform": "平台名称",
+  "date": "2025-02-28",
+  "rank": 1,
+  "title": "剧名",
+  "episode_count": 80,
+  "genre": "题材",
+  "play_count": "播放量",
+  "likes": "点赞数",
+  "company": "制作公司",
+  "actors": ["演员1", "演员2"],
+  "tags": ["标签1", "标签2"],
+  "url": "链接",
+  "notes": "备注"
+}
