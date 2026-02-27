@@ -47,4 +47,29 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 ---
 
+### VPN / Shadowrocket
+
+- **应用**: Shadowrocket.app (已安装)
+- **代理端口**: 127.0.0.1:1082 (HTTP/HTTPS)
+- **网络服务**: Shadowrocket
+- **启动脚本**: `./scripts/shadowrocket.sh`
+- **完整指南**: `SHADOWROCKET_GUIDE.md`
+
+**快速启动**:
+```bash
+# 自动启动并配置
+./scripts/shadowrocket.sh
+
+# 或手动步骤
+open -a Shadowrocket
+sleep 3
+networksetup -setwebproxystate "Shadowrocket" on
+git config --global http.proxy http://127.0.0.1:1082
+git config --global https.proxy http://127.0.0.1:1082
+```
+
+**用途**: 访问 GitHub、Google 等外网服务
+
+---
+
 Add whatever helps you do your job. This is your cheat sheet.
