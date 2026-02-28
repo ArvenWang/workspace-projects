@@ -1,0 +1,28 @@
+[
+  {
+    "platform": "bilibili",
+    "url": "https://www.bilibili.com/v/channel/shortplay",
+    "title": "验证码_哔哩哔哩",
+    "collected_at": "2026-02-28T10:36:08.938198",
+    "videos": [],
+    "video_count": 0,
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/raw/bilibili_20260228_103608.png"
+  },
+  {
+    "platform": "3rd_party",
+    "reports": [
+      {
+        "name": "德塔文短剧报告",
+        "url": "http://www.datawin.com.cn/",
+        "status": "pending"
+      },
+      {
+        "name": "猫眼短剧数据",
+        "url": "https://piaofang.maoyan.com/",
+        "status": "pending"
+      }
+    ],
+    "notes": "第三方数据平台需要注册或付费获取详细数据",
+    "collected_at": "2026-02-28T10:36:08.943359"
+  }
+]

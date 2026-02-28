@@ -1,0 +1,35 @@
+[
+  {
+    "platform": "小红书",
+    "keyword": "AI漫剧",
+    "url": "https://www.xiaohongshu.com/search_result?keyword=AI%E6%BC%AB%E5%89%A7&type=51",
+    "notes_count": 0,
+    "notes": [],
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/xiaohongshu_20260228_111453.png",
+    "collected_at": "2026-02-28T11:14:53.810467"
+  },
+  {
+    "platform": "B站",
+    "url": "https://www.bilibili.com/v/channel/shortplay",
+    "videos_count": 0,
+    "videos": [],
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/bilibili_20260228_111538.png",
+    "collected_at": "2026-02-28T11:15:38.507735"
+  },
+  {
+    "platform": "抖音",
+    "url": "https://www.douyin.com/search/AI%E6%BC%AB%E5%89%A7",
+    "videos_count": 0,
+    "videos": [],
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/douyin_20260228_111557.png",
+    "collected_at": "2026-02-28T11:15:58.155774"
+  },
+  {
+    "platform": "快手",
+    "url": "https://www.kuaishou.com/404?searchKey=AI%E6%BC%AB%E5%89%A7",
+    "videos_count": 0,
+    "videos": [],
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/kuaishou_20260228_111611.png",
+    "collected_at": "2026-02-28T11:16:12.331386"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "platform": "灰豚数据",
+    "url": "https://www.huitun.com/",
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/huitun_20260228_111906.png",
+    "collected_at": "2026-02-28T11:19:07.541128"
+  },
+  {
+    "platform": "新榜",
+    "url": "https://www.newrank.cn/ranklist/gongzhonghao?period=day&dataType=shortvideo",
+    "data_count": 0,
+    "data": [],
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/newrank_20260228_111919.png",
+    "collected_at": "2026-02-28T11:19:20.974061"
+  },
+  {
+    "platform": "飞瓜数据",
+    "url": "https://www.feigua.cn/",
+    "screenshot": "/Users/wangjingwen/.openclaw/workspace/research/manju/data/collected/feigua_20260228_111925.png",
+    "collected_at": "2026-02-28T11:19:26.201447"
+  }
+]
