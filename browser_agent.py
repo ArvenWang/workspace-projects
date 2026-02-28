@@ -1,135 +1,239 @@
 #!/usr/bin/env python3
 """
-浏览器自动化Agent
-能帮你做什么：
-1. 自动浏览网页
-2. 提取网页信息
-3. 填表、点击操作
-4. 截图分析
+浏览器自动化Agent - 完整版
+功能：
+1. 搜索功能 - 百度、Google搜索
+2. 网页浏览 - 打开任意网页
+3. 信息提取 - 提取网页内容
+4. 截图 - 截取网页截图
+5. 表单填写 - 自动填表
+6. 点击操作 - 自动点击按钮/链接
 
-使用方法：
-python3 browser_agent.py "帮我搜索北京天气"
+依赖安装：
+pip3 install playwright requests
+playwright install chromium
+
+运行测试：
+python3 browser_agent.py test
 """
 
 import asyncio
-import json
 import sys
+import os
+import requests
 from playwright.async_api import async_playwright
 
 # 配置
 CONFIG = {
-    'headless': False,  # 是否无头模式
-    'viewport': {'width': 1920, 'height': 1080},
+    'headless': False,  # True=无头模式, False=可视化
+    'viewport': {'width': 1280, 'height': 800},
+    'timeout': 30000,
 }
 
-async def browse(url: str, action: str = None):
-    """浏览网页并执行操作"""
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=CONFIG['headless'])
-        page = await browser.new_page(viewport=CONFIG['viewport'])
+class BrowserAgent:
+    """浏览器自动化Agent"""
+    
+    def __init__(self, headless=False):
+        self.headless = headless
+        self.browser = None
+        self.page = None
+        self.playwright = None
+    
+    async def start(self):
+        """启动浏览器"""
+        self.playwright = await async_playwright().start()
+        self.browser = await self.playwright.chromium.launch(
+            headless=self.headless,
+            args=['--disable-blink-features=AutomationControlled']
+        )
+        self.page = await self.browser.new_page(
+            viewport=CONFIG['viewport']
+        )
+        print("✅ 浏览器已启动")
+    
+    async def close(self):
+        """关闭浏览器"""
+        if self.browser:
+            await self.browser.close()
+        if self.playwright:
+            await self.playwright.stop()
+        print("✅ 浏览器已关闭")
+    
+    async def search(self, query, engine='baidu'):
+        """搜索功能"""
+        engines = {
+            'baidu': 'https://www.baidu.com/s?wd=',
+            'google': 'https://www.google.com/search?q=',
+            'bing': 'https://www.bing.com/search?q=',
+        }
         
+        url = engines.get(engine, engines['baidu']) + query
+        return await self.browse(url)
+    
+    async def browse(self, url):
+        """浏览网页"""
         print(f"🌐 打开: {url}")
-        await page.goto(url, wait_until='networkidle')
+        await self.page.goto(url, wait_until='networkidle', timeout=CONFIG['timeout'])
         
-        if action:
-            print(f"⚡ 执行: {action}")
-            # 根据动作类型执行
-            if '截图' in action:
-                await page.screenshot(path='screenshot.png')
-                print("📸 截图已保存")
-            elif '点击' in action:
-                # 简单实现
-                pass
-        
-        # 提取页面内容
-        content = await page.content()
-        title = await page.title()
-        
-        await browser.close()
+        title = await self.page.title()
+        print(f"✅ 页面加载成功: {title}")
         
         return {
-            'title': title,
             'url': url,
-            'content_length': len(content)
+            'title': title,
         }
-
-async def search(query: str, engine: str = 'google'):
-    """搜索功能"""
-    engines = {
-        'google': 'https://www.google.com/search?q=',
-        'baidu': 'https://www.baidu.com/s?wd=',
-        'bing': 'https://www.bing.com/search?q='
-    }
     
-    url = f"{engines.get(engine, engines['google'])}{query}"
-    return await browse(url, '搜索')
-
-async def extract_info(url: str, selectors: list = None):
-    """提取网页特定信息"""
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=CONFIG['headless'])
-        page = await browser.new_page()
-        await page.goto(url, wait_until='networkidle')
-        
+    async def extract_text(self, selector=None):
+        """提取文本内容"""
+        if selector:
+            elements = await self.page.query_selector_all(selector)
+            texts = []
+            for el in elements[:10]:  # 最多10个
+                text = await el.inner_text()
+                if text:
+                    texts.append(text.strip())
+            return texts
+        else:
+            # 提取所有文本
+            content = await self.page.content()
+            return content[:5000]  # 限制长度
+    
+    async def extract_links(self, limit=10):
+        """提取链接"""
+        links = await self.page.query_selector_all('a[href]')
         results = []
-        
-        if selectors:
-            for sel in selectors:
-                elements = await page.query_selector_all(sel)
-                for el in elements:
-                    text = await el.inner_text()
-                    results.append(text)
-        
-        await browser.close()
+        for link in links[:limit]:
+            href = await link.get_attribute('href')
+            text = await link.inner_text()
+            if href and text:
+                results.append({'text': text.strip()[:50], 'href': href})
         return results
-
-async def fill_form(url: str, data: dict):
-    """自动填表"""
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=CONFIG['headless'])
-        page = await browser.new_page()
-        await page.goto(url)
-        
-        for field, value in data.items():
+    
+    async def screenshot(self, path='screenshot.png', full=False):
+        """截图"""
+        await self.page.screenshot(path=path, full_page=full)
+        print(f"📸 截图已保存: {path}")
+        return path
+    
+    async def fill_form(self, form_data):
+        """填写表单"""
+        for selector, value in form_data.items():
             try:
-                await page.fill(f'[name="{field}"]', value)
-                print(f"✅ 填写: {field} = {value}")
+                await self.page.fill(selector, value)
+                print(f"✅ 填写: {selector} = {value}")
             except Exception as e:
-                print(f"❌ 失败: {field} - {e}")
-        
-        await browser.close()
-        return True
+                print(f"❌ 填写失败: {selector} - {e}")
+    
+    async def click(self, selector):
+        """点击元素"""
+        try:
+            await self.page.click(selector)
+            print(f"✅ 点击: {selector}")
+            return True
+        except Exception as e:
+            print(f"❌ 点击失败: {selector} - {e}")
+            return False
+    
+    async def wait_for_selector(self, selector, timeout=10000):
+        """等待元素出现"""
+        try:
+            await self.page.wait_for_selector(selector, timeout=timeout)
+            return True
+        except:
+            return False
 
-# CLI入口
-if __name__ == '__main__':
+
+async def test_basic():
+    """基础功能测试"""
+    print("\n" + "="*50)
+    print("🧪 浏览器自动化基础测试")
+    print("="*50 + "\n")
+    
+    agent = BrowserAgent(headless=False)
+    
+    try:
+        # 1. 启动浏览器
+        await agent.start()
+        
+        # 2. 测试搜索
+        print("\n[1] 测试搜索功能...")
+        result = await agent.search("人工智能", engine='baidu')
+        print(f"   搜索成功: {result['title']}")
+        
+        # 3. 提取链接
+        print("\n[2] 提取页面链接...")
+        links = await agent.extract_links(5)
+        for i, link in enumerate(links, 1):
+            print(f"   {i}. {link['text'][:30]}...")
+        
+        # 4. 截图
+        print("\n[3] 截图...")
+        await agent.screenshot('test_browser.png')
+        
+        print("\n" + "="*50)
+        print("✅ 所有测试通过!")
+        print("="*50)
+        
+    except Exception as e:
+        print(f"\n❌ 测试失败: {e}")
+    finally:
+        await agent.close()
+
+
+async def demo_search():
+    """演示搜索功能"""
+    query = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else "Python教程"
+    engine = sys.argv[2] if len(sys.argv) > 2 else "baidu"
+    
+    agent = BrowserAgent(headless=False)
+    
+    try:
+        await agent.start()
+        await agent.search(query, engine)
+        
+        print("\n按回车键结束...")
+        input()
+        
+    finally:
+        await agent.close()
+
+
+def main():
+    """主入口"""
     if len(sys.argv) < 2:
-        print("用法:")
-        print("  python3 browser_agent.py search <关键词>")
-        print("  python3 browser_agent.py browse <URL>")
-        print("  python3 browser_agent.py fill <URL> <field>=<value>")
+        print("""
+浏览器自动化Agent - 使用说明
+
+依赖安装:
+  pip3 install playwright
+  playwright install chromium
+
+使用方式:
+  python3 browser_agent.py test              # 运行基础测试
+  python3 browser_agent.py search <关键词>  # 搜索
+  python3 browser browser_agent.py browse <URL>  # 浏览网页
+  
+示例:
+  python3 browser_agent.py search Python
+  python3 browser_agent.py search 人工智能 google
+  python3 browser_agent.py browse https://www.baidu.com
+""")
         sys.exit(1)
     
-    cmd = sys.argv[1]
+    command = sys.argv[1]
     
-    if cmd == 'search' and len(sys.argv) > 2:
-        query = sys.argv[2]
-        result = asyncio.run(search(query))
-        print(f"✅ 搜索完成: {result['title']}")
-    
-    elif cmd == 'browse' and len(sys.argv) > 2:
-        url = sys.argv[2]
-        result = asyncio.run(browse(url))
-        print(f"✅ 打开: {result['title']}")
-    
-    elif cmd == 'fill' and len(sys.argv) > 3:
-        url = sys.argv[2]
-        data = {}
-        for arg in sys.argv[3:]:
-            if '=' in arg:
-                k, v = arg.split('=', 1)
-                data[k] = v
-        result = asyncio.run(fill_form(url, data))
-        print(f"✅ 填表完成")
-    
-    else:
-        print("命令错误")
+    if command == 'test':
+        asyncio.run(test_basic())
+    elif command == 'search':
+        asyncio.run(demo_search())
+    elif command == 'browse':
+        url = sys.argv[2] if len(sys.argv) > 2 else 'https://www.baidu.com'
+        agent = BrowserAgent(headless=False)
+        asyncio.run(agent.start())
+        asyncio.run(agent.browse(url))
+        input("按回车键结束...")
+        asyncio.run(agent.close())
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,8 @@
+[
+  {
+    "symbol": "BTC",
+    "target": 50000.0,
+    "notify_above": true,
+    "added_at": "2026-02-28 23:29:46"
+  }
+]
