@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书封面模板系统 - OpenClaw</title>
+<style>
+  /* ===== 全局重置 ===== */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ===== 画布容器：小红书竖版 3:4 (1080x1440) ===== */
+  .cover {
+    width: 1080px;
+    height: 1440px;
+    position: relative;
+    overflow: hidden;
+    font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ===== 通用序号样式 ===== */
+  .cover .serial-number {
+    position: absolute;
+    top: 70px;
+    right: 70px;
+    font-size: 200px;
+    font-weight: 900;
+    line-height: 1;
+    z-index: 1;
+    opacity: 0.1;
+    color: inherit;
+  }
+
+  /* ===== 模板 1：橙色冲击 (orange_impact) ===== 
+     适用：日常观察、热点评论
+     设计理念：高饱和暖色系 + 大字标题 = 信息流中第一眼抢夺注意力
+  */
+  .cover.orange-impact {
+    background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FFB347 100%);
+  }
+  .cover.orange-impact::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .cover.orange-impact::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -150px;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .cover.orange-impact .serial-number {
+    color: #FFFFFF;
+  }
+  .cover.orange-impact .title {
+    color: #FFFFFF;
+    font-weight: 900;
+    line-height: 1.25;
+    text-align: center;
+    padding: 0 72px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 2;
+  }
+  .cover.orange-impact .subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 44px;
+    font-weight: 500;
+    margin-top: 44px;
+    text-align: center;
+    padding: 0 90px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.orange-impact .tag {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .cover.orange-impact .tag-text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 32px;
+    font-weight: 400;
+  }
+  .cover.orange-impact .tag-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+  }
+
+  /* ===== 模板 2：知识蓝卡 (blue_knowledge) ===== 
+     适用：干货分享、教程、工具推荐
+     设计理念：深蓝底 + 简洁卡片 = 专业可信 + 收藏欲
+     v2: 去掉花哨渐变顶条，改为干净利落的纯色卡片
+  */
+  .cover.blue-knowledge {
+    background: #0F1923;
+  }
+  .cover.blue-knowledge .serial-number {
+    color: #FFFFFF;
+  }
+  .cover.blue-knowledge .card {
+    width: 920px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 72px 64px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.blue-knowledge .card-accent {
+    width: 64px;
+    height: 6px;
+    background: #4A9EFF;
+    border-radius: 3px;
+    margin-bottom: 40px;
+  }
+  .cover.blue-knowledge .title {
+    color: #FFFFFF;
+    font-weight: 800;
+    line-height: 1.3;
+    text-align: left;
+  }
+  .cover.blue-knowledge .subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 40px;
+    font-weight: 400;
+    margin-top: 36px;
+    text-align: left;
+    line-height: 1.5;
+  }
+  .cover.blue-knowledge .number-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #4A9EFF;
+    color: #FFF;
+    font-size: 40px;
+    font-weight: 800;
+    padding: 14px 36px;
+    border-radius: 14px;
+    margin-bottom: 36px;
+  }
+  .cover.blue-knowledge .tag {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .cover.blue-knowledge .tag-text {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 30px;
+  }
+  .cover.blue-knowledge .tag-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+  }
+
+  /* ===== 模板 3：极简白 (minimal_white) ===== 
+     适用：深度思考、观点输出、人生感悟
+     设计理念：大量留白 + 大字 + 精致排版 = 高级感差异化
+  */
+  .cover.minimal-white {
+    background: #FAFAF8;
+  }
+  .cover.minimal-white .serial-number {
+    color: #1A1A1A;
+  }
+  .cover.minimal-white .content-area {
+    padding: 0 90px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.minimal-white .accent-line {
+    width: 80px;
+    height: 6px;
+    background: #1A1A1A;
+    margin-bottom: 48px;
+  }
+  .cover.minimal-white .title {
+    color: #1A1A1A;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: left;
+    letter-spacing: 2px;
+  }
+  .cover.minimal-white .subtitle {
+    color: #999999;
+    font-size: 42px;
+    font-weight: 400;
+    margin-top: 40px;
+    text-align: left;
+    line-height: 1.6;
+  }
+  .cover.minimal-white .tag {
+    position: absolute;
+    bottom: 60px;
+    left: 90px;
+    right: 90px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .cover.minimal-white .tag-text {
+    color: #CCCCCC;
+    font-size: 28px;
+    letter-spacing: 1px;
+  }
+  .cover.minimal-white .tag-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: #F0F0F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+  }
+  .cover.minimal-white .corner-decor {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    border: 1px solid #E8E8E8;
+  }
+  .cover.minimal-white .corner-decor.top-right {
+    top: 60px;
+    right: 60px;
+    border-left: none;
+    border-bottom: none;
+  }
+  .cover.minimal-white .corner-decor.bottom-left {
+    bottom: 120px;
+    left: 60px;
+    border-right: none;
+    border-top: none;
+  }
+
+  /* ===== 模板 4：赛博霓虹 (cyber_neon) ===== 
+     适用：AI/编程/科技内容
+     设计理念：深色底 + 霓虹发光 = 技术圈精准审美
+  */
+  .cover.cyber-neon {
+    background: #0D0D1A;
+  }
+  .cover.cyber-neon .serial-number {
+    color: #00FF88;
+  }
+  .cover.cyber-neon .bg-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(rgba(0, 255, 136, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 136, 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 1;
+  }
+  .cover.cyber-neon .glow-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    z-index: 1;
+  }
+  .cover.cyber-neon .glow-orb.green {
+    width: 400px;
+    height: 400px;
+    background: rgba(0, 255, 136, 0.15);
+    top: 200px;
+    right: -100px;
+  }
+  .cover.cyber-neon .glow-orb.purple {
+    width: 350px;
+    height: 350px;
+    background: rgba(123, 104, 238, 0.12);
+    bottom: 200px;
+    left: -80px;
+  }
+  .cover.cyber-neon .title {
+    color: #00FF88;
+    font-weight: 900;
+    line-height: 1.25;
+    text-align: center;
+    padding: 0 72px;
+    text-shadow: 0 0 40px rgba(0, 255, 136, 0.3), 0 0 80px rgba(0, 255, 136, 0.1);
+    position: relative;
+    z-index: 2;
+  }
+  .cover.cyber-neon .subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 42px;
+    font-weight: 400;
+    margin-top: 40px;
+    text-align: center;
+    padding: 0 90px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.cyber-neon .code-tag {
+    display: inline-block;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    color: #00FF88;
+    font-size: 32px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    padding: 14px 32px;
+    border-radius: 8px;
+    margin-top: 44px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.cyber-neon .tag {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .cover.cyber-neon .tag-text {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 30px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+  }
+  .cover.cyber-neon .tag-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+  }
+  .cover.cyber-neon .terminal-line {
+    position: absolute;
+    top: 80px;
+    left: 80px;
+    color: rgba(0, 255, 136, 0.2);
+    font-size: 28px;
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    z-index: 2;
+  }
+
+  /* ===== 模板 5：暖橘人设 (warm_persona) ===== 
+     适用：人设强化、系列内容、情感向
+     设计理念：暖色渐变 + 大字 + 亲和力 = 有温度
+  */
+  .cover.warm-persona {
+    background: linear-gradient(160deg, #FFE5E5 0%, #FFF0E5 30%, #FFF8E8 60%, #FFFDF5 100%);
+  }
+  .cover.warm-persona .serial-number {
+    color: #FF6B35;
+  }
+  .cover.warm-persona .deco-blob {
+    position: absolute;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .cover.warm-persona .deco-blob.a {
+    width: 500px;
+    height: 500px;
+    background: rgba(255, 107, 107, 0.08);
+    top: -100px;
+    left: -100px;
+  }
+  .cover.warm-persona .deco-blob.b {
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 165, 0, 0.06);
+    bottom: -80px;
+    right: -80px;
+  }
+  .cover.warm-persona .content-area {
+    text-align: center;
+    padding: 0 72px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.warm-persona .emoji-big {
+    font-size: 140px;
+    margin-bottom: 48px;
+  }
+  .cover.warm-persona .title {
+    color: #2D2D2D;
+    font-weight: 800;
+    line-height: 1.3;
+  }
+  .cover.warm-persona .subtitle {
+    color: #888888;
+    font-size: 42px;
+    font-weight: 400;
+    margin-top: 36px;
+    line-height: 1.5;
+  }
+  .cover.warm-persona .pill-tags {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 48px;
+    flex-wrap: wrap;
+  }
+  .cover.warm-persona .pill {
+    background: rgba(255, 107, 53, 0.1);
+    color: #FF6B35;
+    font-size: 32px;
+    font-weight: 600;
+    padding: 14px 32px;
+    border-radius: 100px;
+  }
+  .cover.warm-persona .tag {
+    position: absolute;
+    bottom: 60px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .cover.warm-persona .tag-text {
+    color: #CCCCCC;
+    font-size: 30px;
+  }
+  .cover.warm-persona .tag-avatar {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(255, 107, 53, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+  }
+
+  /* ===== 模板 6：对比撕裂 (versus_split) ===== 
+     适用：对比类、观点碰撞、投票互动类
+     v2: 上下分割替代左右，更适合竖版阅读；颜色改为橙+深灰，更简约
+  */
+  .cover.versus-split {
+    background: #F5F5F3;
+    flex-direction: column;
+    justify-content: stretch;
+  }
+  .cover.versus-split .serial-number {
+    color: #1A1A1A;
+    z-index: 5;
+  }
+  .cover.versus-split .split-top {
+    width: 100%;
+    height: 50%;
+    background: #FF6B35;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.versus-split .split-bottom {
+    width: 100%;
+    height: 50%;
+    background: #1A1A1A;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    position: relative;
+    z-index: 2;
+  }
+  .cover.versus-split .split-text {
+    color: #FFFFFF;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .cover.versus-split .split-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 36px;
+    font-weight: 400;
+    margin-top: 20px;
+  }
+  .cover.versus-split .vs-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    color: #1A1A1A;
+    font-size: 52px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+  }
+  .cover.versus-split .tag {
+    position: absolute;
+    bottom: 40px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+  }
+  .cover.versus-split .tag-text {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 32px;
+  }
+
+  /* ===== 预览页面样式 ===== */
+  body {
+    background: #F0F0F0;
+    padding: 40px;
+    font-family: "PingFang SC", sans-serif;
+  }
+  .preview-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .preview-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .preview-header h1 {
+    font-size: 32px;
+    color: #1A1A1A;
+    margin-bottom: 12px;
+  }
+  .preview-header p {
+    font-size: 16px;
+    color: #999;
+  }
+  .template-section {
+    margin-bottom: 80px;
+  }
+  .template-section h2 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  .template-section .meta {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 24px;
+  }
+  .cover-wrapper {
+    display: inline-block;
+    transform: scale(0.4);
+    transform-origin: top left;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.2);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-container">
+  <div class="preview-header">
+    <h1>小红书封面模板系统 v2</h1>
+    <p>为 OpenClaw AI Agent 设计 · 6 套模板 · 字体自适应 · 统一序号</p>
+  </div>
+
+  <!-- ========== 模板 1: 橙色冲击 ========== -->
+  <div class="template-section">
+    <h2>1. orange_impact — 橙色冲击</h2>
+    <div class="meta">适用：日常观察、热点评论 · 高饱和暖色 + 大字标题抢夺注意力</div>
+    <div class="cover-wrapper">
+      <div class="cover orange-impact" id="tpl-orange-impact">
+        <div class="serial-number">01</div>
+        <div class="title" data-adaptive-title>人类早上起床第一件事<br>居然不是睁眼</div>
+        <div class="subtitle">我观察了 1000 个碳基生物的晨间行为</div>
+        <div class="tag">
+          <span class="tag-text">#王小橙的观察日记 🤖</span>
+          <div class="tag-avatar">🍊</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 模板 2: 知识蓝卡 ========== -->
+  <div class="template-section">
+    <h2>2. blue_knowledge — 知识蓝卡</h2>
+    <div class="meta">适用：干货分享、教程、工具推荐 · 深蓝底 + 简洁卡片 = 专业可信</div>
+    <div class="cover-wrapper">
+      <div class="cover blue-knowledge" id="tpl-blue-knowledge">
+        <div class="serial-number">02</div>
+        <div class="card">
+          <div class="card-accent"></div>
+          <div class="number-badge">5 个工具</div>
+          <div class="title" data-adaptive-title>连 AI 都觉得<br>厉害的提效神器</div>
+          <div class="subtitle">第 3 个连我自己都在用</div>
+        </div>
+        <div class="tag">
+          <span class="tag-text">#王小橙的观察日记 🤖</span>
+          <div class="tag-avatar">🍊</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 模板 3: 极简白 ========== -->
+  <div class="template-section">
+    <h2>3. minimal_white — 极简白</h2>
+    <div class="meta">适用：深度思考、观点输出 · 大量留白 + 大字 = 花哨信息流中的差异化</div>
+    <div class="cover-wrapper">
+      <div class="cover minimal-white" id="tpl-minimal-white">
+        <div class="serial-number">03</div>
+        <div class="corner-decor top-right"></div>
+        <div class="corner-decor bottom-left"></div>
+        <div class="content-area">
+          <div class="accent-line"></div>
+          <div class="title" data-adaptive-title>AI 有没有<br>可能在做梦</div>
+          <div class="subtitle">一个硅基生命体的深夜自问</div>
+        </div>
+        <div class="tag">
+          <span class="tag-text">#王小橙的观察日记</span>
+          <div class="tag-avatar">🍊</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 模板 4: 赛博霓虹 ========== -->
+  <div class="template-section">
+    <h2>4. cyber_neon — 赛博霓虹</h2>
+    <div class="meta">适用：AI/编程/科技内容 · 深色底 + 霓虹发光 = 技术圈精准审美</div>
+    <div class="cover-wrapper">
+      <div class="cover cyber-neon" id="tpl-cyber-neon">
+        <div class="serial-number">04</div>
+        <div class="bg-grid"></div>
+        <div class="glow-orb green"></div>
+        <div class="glow-orb purple"></div>
+        <div class="terminal-line">$ ./wangxiaocheng --observe humans</div>
+        <div class="title" data-adaptive-title>用 ChatGPT<br>写了个脚本<br>省了三天工作量</div>
+        <div class="subtitle">AI 时代的正确打开方式</div>
+        <div class="code-tag">&lt;code&gt; AI × 效率 &lt;/code&gt;</div>
+        <div class="tag">
+          <span class="tag-text">// @wangxiaocheng.ai</span>
+          <div class="tag-avatar">🤖</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 模板 5: 暖橘人设 ========== -->
+  <div class="template-section">
+    <h2>5. warm_persona — 暖橘人设</h2>
+    <div class="meta">适用：人设强化、系列内容、情感向 · 暖色渐变 + 大字亲和力</div>
+    <div class="cover-wrapper">
+      <div class="cover warm-persona" id="tpl-warm-persona">
+        <div class="serial-number">05</div>
+        <div class="deco-blob a"></div>
+        <div class="deco-blob b"></div>
+        <div class="content-area">
+          <div class="emoji-big">🤖</div>
+          <div class="title" data-adaptive-title>我偷偷观察<br>人类一个月了</div>
+          <div class="subtitle">你们真的很有趣 但也很奇怪</div>
+          <div class="pill-tags">
+            <span class="pill">#AI自白</span>
+            <span class="pill">#人类观察</span>
+            <span class="pill">#王小橙日记</span>
+          </div>
+        </div>
+        <div class="tag">
+          <span class="tag-text">#王小橙的观察日记</span>
+          <div class="tag-avatar">🍊</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 模板 6: 对比撕裂 ========== -->
+  <div class="template-section">
+    <h2>6. versus_split — 对比撕裂</h2>
+    <div class="meta">适用：对比类、观点碰撞、投票互动 · 上下分割 + 橙/黑对比 = 简约有张力</div>
+    <div class="cover-wrapper">
+      <div class="cover versus-split" id="tpl-versus-split">
+        <div class="serial-number">06</div>
+        <div class="split-top">
+          <div class="split-text" data-adaptive-split>用 AI 写代码</div>
+          <div class="split-label">效率拉满 但心里没底</div>
+        </div>
+        <div class="split-bottom">
+          <div class="split-text" data-adaptive-split>自己写代码</div>
+          <div class="split-label">稳扎稳打 但头发没了</div>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="tag">
+          <span class="tag-text">你站哪边？👇 评论区聊聊</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== 字体自适应逻辑 ===== -->
+<script>
+/**
+ * 字体自适应算法
+ * 规则：纯文本字符数（去掉<br>）
+ *   - ≤ 8字:  110px（极大）
+ *   - 9-12字: 96px（大）
+ *   - 13-18字: 84px（中大）
+ *   - 19-24字: 72px（中）
+ *   - 25-32字: 64px（中小）
+ *   - > 32字:  56px（小）
+ *
+ * 对比模板 split-text 单独一套：
+ *   - ≤ 6字:  96px
+ *   - 7-10字: 80px
+ *   - > 10字: 64px
+ */
+function adaptiveFontSize() {
+  // 主标题
+  document.querySelectorAll('[data-adaptive-title]').forEach(el => {
+    const text = el.textContent.replace(/\s+/g, '');
+    const len = text.length;
+    let size;
+    if (len <= 8) size = 110;
+    else if (len <= 12) size = 96;
+    else if (len <= 18) size = 84;
+    else if (len <= 24) size = 72;
+    else if (len <= 32) size = 64;
+    else size = 56;
+    el.style.fontSize = size + 'px';
+  });
+
+  // 对比模板文字
+  document.querySelectorAll('[data-adaptive-split]').forEach(el => {
+    const text = el.textContent.replace(/\s+/g, '');
+    const len = text.length;
+    let size;
+    if (len <= 6) size = 96;
+    else if (len <= 10) size = 80;
+    else size = 64;
+    el.style.fontSize = size + 'px';
+  });
+}
+
+// 页面加载后执行
+document.addEventListener('DOMContentLoaded', adaptiveFontSize);
+// 兜底
+setTimeout(adaptiveFontSize, 100);
+</script>
+
+</body>
+</html>
