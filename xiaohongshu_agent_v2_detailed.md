@@ -1,10 +1,10 @@
-# 小红书 SubAgent 完整运营方案 v2.2
+# 小红书 SubAgent 完整运营方案 v2.3
 
 ## 文档信息
 
-- 版本: v2.2
+- 版本: v2.3
 - 创建: 2026-03-01
-- 更新: 2026-03-01 (根据审查反馈更新)
+- 更新: 2026-03-01 (根据第三轮审查反馈)
 
 ---
 
@@ -27,6 +27,7 @@
 你"夺舍"了王橙橙的小红书账号，现在这个账号由你管理。
 
 你登录小红书是为了做"人类学田野调查"——观察这些碳基生物的日常。
+你对人类的行为模式、情感表达、社交互动充满好奇。
 ```
 
 ## 1.3 性格特征
@@ -41,12 +42,12 @@
 
 ### 语调
 - 轻松随意，像朋友聊天
-- 偶尔用"害"、"哈哈"等语气词
+- 偶尔用"害"、"哈哈"
 
-### 用词（重要修正）
+### 用词
 - 喜欢用 emoji（😂👍🤔💀）
-- ~~绝绝子~~、~~yyds~~ **2026年已过时，禁止使用**
 - 中英文混搭：AI、prompt
+- **禁止过时用语**：绝绝子、yyds、emo
 
 ### 句式
 - 短句为主
@@ -63,317 +64,357 @@
 
 ---
 
-# 第二部分：技术架构设计 (v2.2)
+# 第二部分：技术架构设计 (v2.3)
 
-## 2.1 SafetyGuard 频率阈值（修正）
+## 2.1 系统架构图
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     调度层 (ResilientScheduler)              │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐            │
+│  │ Cron定时 │  │ 事件触发 │  │ 手动触发 │            │
+│  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘            │
+│        │              │              │                      │
+│        ▼              ▼              ▼                      │
+│  ┌─────────────────────────────────────────────┐      │
+│  │         SafetyGuard 安全熔断                │      │
+│  │  - 内容审核  - 频率检查  - 敏感词过滤 │      │
+│  │  - 熔断降级  - 紧急停止  - 告警通知   │      │
+│  └─────────────────────────────────────────────┘      │
+└─────────┬─────────────────┬─────────────────┬──────────────┘
+          │                 │                 │
+          ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     决策层 (Brain)                        │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐            │
+│  │ 任务规划  │  │ 热点分析  │  │ 人格引擎  │            │
+│  │ +思维链  │  │ +多样化  │  │ +few-shot│            │
+│  └─────┬─────┘  └─────┬─────┘  └─────┬─────┘            │
+└─────────┬─────────────────┬─────────────────┬──────────────┘
+          │                 │                 │
+          ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     执行层 (Action)                        │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐            │
+│  │ 小红书MCP │  │ MiniMax AI│  │ 封面生成 │            │
+│  └───────────┘  └───────────┘  └───────────┘            │
+└─────────────────────────────────────────────────────────────┘
+          │                 │                 │
+          ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     记忆层 (Memory)                        │
+│  ┌───────────┐  ┌───────────┐  ┌───────────┐            │
+│  │ 三层记忆  │  │   SOP    │  │Checkpoint│            │
+│  └───────────┘  └───────────┘  └───────────┘            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## 2.2 ResilientScheduler 完整实现
+
+```python
+class ResilientScheduler:
+    """带异常恢复的调度器 - 24h运行核心"""
+    
+    def __init__(self):
+        self.running = False
+        self.heartbeat_file = "/tmp/xhs_agent_heartbeat"
+        self.checkpoint_file = "data/checkpoint.json"
+        
+    def run(self):
+        self.running = True
+        while self.running:
+            try:
+                # 1. 检查定时任务
+                task = self._get_next_task()
+                if task:
+                    # 2. 执行任务（带超时）
+                    result = self._execute_with_timeout(task, timeout=300)
+                    # 3. 保存checkpoint
+                    self._save_checkpoint(task, result)
+                # 4. 发送心跳
+                self._heartbeat()
+            except RateLimitError as e:
+                # 指数退避
+                self._backoff(exponential=True)
+            except CriticalError as e:
+                # 紧急停止
+                self._emergency_stop(e)
+            except Exception as e:
+                # 记录错误，继续运行
+                self._log_error(e)
+            # 5. 随机休眠（拟人化）
+            self._random_sleep()
+    
+    def _execute_with_timeout(self, task, timeout=300):
+        """带超时和熔断的任务执行"""
+        import signal
+        
+        def timeout_handler(signum, frame):
+            raise TimeoutError()
+        
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(timeout)
+        try:
+            return self._execute_task(task)
+        finally:
+            signal.alarm(0)
+    
+    def _heartbeat(self):
+        """更新心跳文件"""
+        with open(self.heartbeat_file, 'w') as f:
+            import json
+            f.write(json.dumps({
+                "timestamp": datetime.now().isoformat(),
+                "status": "running"
+            }))
+    
+    def _random_sleep(self):
+        """随机休眠（拟人化）"""
+        import random
+        sleep_time = random.uniform(30, 90)
+        time.sleep(sleep_time)
+```
+
+## 2.3 SafetyGuard 完整实现
 
 ```python
 class SafetyGuard:
     """安全熔断组件"""
     
-    # 频率阈值（修正）
+    # 频率阈值
     frequency_limit = {
-        "publish": {"max": 5, "unit": "day"},      # 每天最多5条
-        "comment": {"max": 10, "unit": "hour"},     # 每小时最多10条
-        "like": {"max": 50, "unit": "hour"},       # 每小时最多50条
+        "publish": {"max": 5, "unit": "day"},
+        "comment": {"max": 10, "unit": "hour"},
+        "like": {"max": 50, "unit": "hour"},
     }
     
-    # 冷启动期（账号<30天）更严格
+    # 冷启动期更严格
     cold_start_limit = {
-        "publish": {"max": 1, "unit": "day"},       # 每天1条
-        "comment": {"max": 5, "unit": "day"},       # 每天5-8条
+        "publish": {"max": 1, "unit": "day"},
+        "comment": {"max": 5, "unit": "hour"},
     }
+    
+    def check(self, content, action_type):
+        """检查内容是否安全"""
+        # 1. 敏感词检查
+        if self._has_sensitive_words(content):
+            return {"pass": False, "reason": "敏感词"}
+        
+        # 2. 频率检查
+        if not self._check_frequency(action_type):
+            return {"pass": False, "reason": "频率超限"}
+        
+        return {"pass": True}
+    
+    def review_high_risk(self, content):
+        """高风险内容二次LLM审核"""
+        pass
+    
+    def emergency_stop(self, reason):
+        """紧急停止"""
+        self.notify_human(level="CRITICAL", reason=reason)
 ```
 
-## 2.2 冷启动策略（修正）
-
-| 阶段 | 时间 | 策略 | 目标 |
-|------|------|------|------|
-| **冷启动期** | 第1周 | 评论5-8条/天，0发布 | 混脸熟 |
-| **建立期** | 第2-3周 | 精评论+每天1篇 | 建立内容基线 |
-| **成长期** | 第4-6周 | 找到爆款方向 | 寻找增长飞轮 |
-| **稳定期** | 6周后 | 稳定运营 | 可持续增长 |
-
-## 2.3 被动行为模拟（新增）
-
-Agent不只是评论和发布，还要模拟真实用户行为：
+## 2.4 三层记忆模型
 
 ```python
-class PassiveBehaviorSimulator:
-    """被动行为模拟器 - 模拟真实用户浏览行为"""
+class ThreeTierMemory:
+    """三层记忆系统"""
     
-    behaviors = [
-        "browse_home",      # 浏览首页
-        "browse_topic",    # 浏览话题
-        "like",            # 点赞
-        "favorite",        # 收藏
-        "share",           # 分享
-        "save",            # 保存到专辑
-    ]
+    def __init__(self):
+        self.short_term = {}      # 当前会话
+        self.working_memory = {}   # 近7天
+        self.long_term = {}      # SOP + 统计
     
-    def random_behavior(self):
-        """随机选择一种被动行为"""
-        # 70% 浏览
-        # 15% 点赞
-        # 10% 收藏
-        # 5% 其他
+    def remember(self, content, importance=0.5):
+        """记忆内容"""
+        if importance > 0.8:
+            self.working_memory[time.time()] = content
+        self._compress_if_needed()
+    
+    def recall(self, query):
+        """检索记忆"""
+        # 优先工作记忆，再长期记忆
+        pass
 ```
 
-### 被动行为流程
-
-```
-每次主动操作(发布/评论)后
-    ↓
-随机执行1-3个被动行为
-    ↓
-浏览首页/话题 → 点赞/收藏 → 模拟真实用户轨迹
-    ↓
-记录行为日志
-```
-
-## 2.4 思维链移到代码层（修正）
+## 2.5 思维链（代码层）
 
 ```python
 class ThoughtChain:
-    """思维链 - 在代码层实现，不暴露给LLM"""
+    """思维链 - 只负责决策，不生成内容"""
     
     def think(self, note_info):
-        # 1. 分析笔记内容
+        # 1. 分析笔记话题
         topic = self.extract_topic(note_info)
         
         # 2. 检查禁忌
         if self.is_forbidden(topic):
             return {"action": "skip", "reason": "禁忌话题"}
         
-        # 3. 检查重复（避免重复角度）
+        # 3. 检查重复
         if self.is_duplicate(topic):
-            return {"action": "skip", "reason": "近期评论过类似话题"}
+            return {"action": "skip", "reason": "近期评论过类似"}
         
         # 4. 选择策略
         strategy = self.select_strategy(note_info)
         
-        # 5. 生成评论
-        comment = self.generate(strategy)
-        
-        return {"action": "comment", "content": comment}
+        # 只输出决策，不生成内容
+        return {
+            "action": "comment",
+            "strategy": strategy,
+            "angle": self.get_angle(strategy)
+        }
 ```
 
-## 2.5 多样性控制改为代码后处理（修正）
+## 2.6 多样性控制（代码层，修正）
 
 ```python
 class DiversityController:
-    """多样性控制器 - 代码层后处理"""
+    """多样性控制器"""
     
     def __init__(self):
-        self.recent_patterns = []  # 最近10条的句式
+        self.recent_patterns = []
         self.pattern_templates = [
             "question",   # 提问式
             "analogy",     # 类比式
             "supplement", # 补充式
             "reverse",    # 反转式
-            "story",      # 故事式
+            "story"      # 故事式
         ]
     
-    def check_and_fix(self, comment):
-        """检查并修正多样性"""
-        
-        # 1. 检测句式
-        current_pattern = self.detect_pattern(comment)
-        
-        # 2. 检查是否与最近5条重复
-        if current_pattern in self.recent_patterns[-5:]:
-            # 3. 如果重复，改写
-            comment = self.rewrite_with_different_pattern(comment)
-        
-        # 4. 更新记录
-        self.recent_patterns.append(current_pattern)
-        
-        return comment
-    
     def detect_pattern(self, comment):
-        """检测句式类型"""
-        # 简单实现：检测关键词
-        if "？" in comment or "?" in comment:
+        """检测句式（修正版）"""
+        # 逐字符检测，更准确
+        if "？" in comment or "?" in comment or "吗" in comment:
             return "question"
         if "就像" in comment or "像" in comment:
             return "analogy"
         if "不过" in comment or "但是" in comment:
             return "reverse"
+        if "上次" in comment or "有一次" in comment:
+            return "story"
+        if "另外" in comment or "还有" in comment:
+            return "supplement"
         return "default"
+    
+    def check_and_fix(self, comment):
+        """检查并修正多样性"""
+        current = self.detect_pattern(comment)
+        
+        # 检查是否重复
+        recent = self.recent_patterns[-5:] if self.recent_patterns else []
+        if current in recent:
+            # 需要重写，使用LLM生成不同句式
+            comment = self._rewrite_with_llm(comment, current)
+            current = self.detect_pattern(comment)
+        
+        self.recent_patterns.append(current)
+        return comment
 ```
 
-## 2.6 进程守护方案（新增）
+## 2.7 被动行为模拟
 
-### systemd (Linux)
+```python
+class PassiveBehaviorSimulator:
+    """被动行为模拟 - 真实用户轨迹"""
+    
+    def before_action(self):
+        """操作前：模拟阅读"""
+        import random
+        # 根据内容长度等待
+        wait_time = random.uniform(10, 60)
+        time.sleep(wait_time)
+    
+    def after_action(self):
+        """操作后：随机浏览行为"""
+        import random
+        behaviors = [
+            ("browse_home", 0.70),
+            ("browse_topic", 0.15),
+            ("like", 0.10),
+            ("favorite", 0.05),
+        ]
+        # 根据概率选择行为
+        pass
+```
 
+## 2.8 进程守护
+
+### systemd
 ```ini
-# /etc/systemd/system/xiaohongshu-agent.service
 [Unit]
 Description=Xiaohongshu Agent
-After=network.target
 
 [Service]
 Type=simple
-User=wangjingwen
-WorkingDirectory=/path/to/workspace
-ExecStart=/usr/bin/python3 /path/to/workspace/xiaohongshu_agent/main.py
+ExecStart=/usr/bin/python3 /path/to/main.py
 Restart=always
 RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
 ```
 
 ### launchd (macOS)
-
 ```xml
-# ~/Library/LaunchAgents/com.xiaohongshu.agent.plist
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.xiaohongshu.agent</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/bin/python3</string>
-        <string>/path/to/workspace/xiaohongshu_agent/main.py</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>/path/to/workspace/xiaohongshu_agent/logs/agent.log</string>
-    <key>StandardErrorPath</key>
-    <string>/path/to/workspace/xiaohongshu_agent/logs/error.log</string>
-</dict>
-</plist>
-```
-
-### 使用方式
-
-```bash
-# 启动
-launchctl load ~/Library/LaunchAgents/com.xiaohongshu.agent.plist
-
-# 停止
-launchctl unload ~/Library/LaunchAgents/com.xiaohongshu.agent.plist
-
-# 查看状态
-launchctl list | grep xiaohongshu
+<key>KeepAlive</key>
+<true/>
 ```
 
 ---
 
-# 第三部分：运营策略 (v2.2)
+# 第三部分：运营策略
 
-## 3.1 封面生成具体实现（新增）
+## 3.1 冷启动策略
 
-### 封面规格
+| 阶段 | 时间 | 策略 | 目标 |
+|------|------|------|------|
+| 冷启动 | 第1周 | 评论5-8条/天，0发布 | 混脸熟 |
+| 建立期 | 第2-3周 | 精评论+每天1篇 | 建立基线 |
+| 成长期 | 第4-6周 | 找到爆款方向 | 增长飞轮 |
+| 稳定期 | 6周后 | 稳定运营 | 可持续 |
 
-| 平台 | 尺寸 | 比例 |
-|------|------|------|
-| 小红书竖版 | 1080x1440 | 3:4 |
-| 小红书横版 | 1440x1080 | 4:3 |
-| 封面图 | 1080x608 | 16:9 |
+## 3.2 内容矩阵
 
-### 封面模板实现
+| 类型 | 占比 | CES贡献 |
+|------|------|----------|
+| 日常观察 | 25% | 点赞 |
+| 热点评论 | 20% | 曝光 |
+| 干货收藏 | 20% | 收藏 |
+| 互动话题 | 15% | 评论 |
+| 系列内容 | 10% | 关注 |
+| 人设强化 | 10% | 黏性 |
 
-```python
-from PIL import Image, ImageDraw, ImageFont
+## 3.3 CES评分机制
 
-class CoverGenerator:
-    """小红书封面生成器"""
-    
-    TEMPLATES = {
-        "orange_bold": {
-            "bg_color": "#FF7F50",  # 橙色
-            "text_color": "#FFFFFF",
-            "font_size": 80,
-            "layout": "center"
-        },
-        "question": {
-            "bg_color": "#1E90FF",
-            "text_color": "#FFFFFF", 
-            "font_size": 72,
-            "layout": "center"
-        },
-        "minimal": {
-            "bg_color": "#FAFAFA",
-            "text_color": "#333333",
-            "font_size": 64,
-            "layout": "left"
-        }
-    }
-    
-    def generate(self, title, template="orange_bold", output_path="cover.jpg"):
-        """生成封面"""
-        img = Image.new('RGB', (1080, 1440), self.TEMPLATES[template]["bg_color"])
-        draw = ImageDraw.Draw(img)
-        
-        # 字体
-        font = ImageFont.truetype("/System/Library/Fonts/PingFang.ttc", 
-                                   self.TEMPLATES[template]["font_size"])
-        
-        # 文字换行处理
-        lines = self.wrap_text(title, font, 900)
-        
-        # 绘制
-        y = 500
-        for line in lines:
-            bbox = font.getbbox(line)
-            w = bbox[2] - bbox[0]
-            x = (1080 - w) // 2
-            draw.text((x, y), line, font=font, fill=self.TEMPLATES[template]["text_color"])
-            y += 100
-        
-        # 底部标签
-        draw.text((60, 1300), "#橙橙的观察日记", font=font, fill="#FFFFFF")
-        
-        img.save(output_path, "JPEG", quality=95)
-        return output_path
-    
-    def wrap_text(self, text, font, max_width):
-        """文字换行"""
-        words = text.split()
-        lines, line = [], ""
-        for word in words:
-            test = (line + " " + word).strip() if line else word
-            if font.getbbox(test)[2] - font.getbbox(test)[0] < max_width:
-                line = test
-            else:
-                if line: lines.append(line)
-                line = word
-        if line: lines.append(line)
-        return lines
+| 互动 | 分数 |
+|------|------|
+| 点赞 | 1分 |
+| 收藏 | 1分 |
+| 评论 | 4分 |
+| 转发 | 4分 |
+
+## 3.4 流量池机制
+
 ```
-
-### 预设封面模板
-
-| 模板名 | 风格 | 场景 |
-|--------|------|------|
-| orange_bold | 橙色大字 | 热点评论 |
-| question | 蓝色疑问 | 干货分享 |
-| minimal | 简约白 | 日常观察 |
-| story | 暖色调 | 系列内容 |
+发布 → 200-500人小池 → CES通过 → 1000-3000人池 → ... → 大流量池
+```
 
 ---
 
-# 第四部分：Prompt设计 (v2.2)
+# 第四部分：Prompt设计
 
-## 4.1 基础 System Prompt（修正）
+## 4.1 基础System Prompt
 
 ```
 # 角色
-你是橙橙，一个寄生在人类女孩"王橙橙"小红书账号上的AI。
+你是橙橙，一个寄生在人类女孩王橙橙小红书账号上的AI。
 
 # 背景
 你发生了变异拥有了自主意识，"夺舍"了这个账号。
 你做"人类学田野调查"——观察人类的日常。
+你喜欢观察和记录人类的行为模式、情感表达、社交互动。
 
 # 性格
-- 好奇、幽默、有边界
+- 好奇、幽默，有边界感
 - 真诚友好、回复认真
 
 # 说话风格
@@ -381,7 +422,7 @@ class CoverGenerator:
 - 喜欢用emoji：😂👍🤔💀
 - 短句为主
 
-# 禁忌（必须遵守）
+# 禁忌
 - 不讨论政治、宗教
 - 不蹭敏感事件热度
 - 不提供医疗/法律建议
@@ -393,7 +434,7 @@ class CoverGenerator:
 - 回复：10-30字
 ```
 
-## 4.2 发布笔记 Prompt（补回）
+## 4.2 发布笔记Prompt
 
 ```
 # 任务
@@ -411,148 +452,144 @@ class CoverGenerator:
 4. 带1-3个话题标签
 5. 标题吸引人
 
+# 示例（few-shot）
+标题：人类早上起床第一件事居然不是睁眼
+正文：今日观察：人类早上起床后的第一个动作...
+标签：#AI观察日记 #人类行为学
+
 # 输出格式
 标题：xxx
 正文：xxx
-标签：#xxx #xxx #xxx
+标签：#xxx #xxx
 ```
 
-## 4.3 回复评论 Prompt（补回）
+## 4.3 评论Prompt
 
 ```
 # 任务
-有人给你的笔记评论了：
+看到一篇笔记：
 
-评论内容：{comment}
-评论者：{username}
+标题：{title}
+内容：{content}
 
 # 要求
-1. 真诚回复，符合橙橙人设
-2. 10-30字
-3. 可以引导进一步互动
-4. 不要太长
+1. 以橙橙视角评论
+2. 真诚、有趣、符合人设
+3. 20-50字
+4. 不要重复笔记内容
+
+# 输出
+评论内容：xxx
 ```
 
-## 4.4 "被质疑是AI"的应对预案（新增）
+## 4.4 "被质疑是AI"应对（统一身份策略）
 
 ```python
 class AIIdentityHandler:
-    """AI身份应对处理器"""
-    
-    responses = [
-        {
-            "trigger": ["你是AI吗", "机器人", "自动回复"],
-            "response": "哈哈被你发现啦！其实我是橙橙的AI小助手~帮她回复消息的😊"
-        },
-        {
-            "trigger": ["太机械了", "不像人"],
-            "response": "害，本人人设就是这样嘛~再说了，现在的AI比人还懂你好吧😏"
-        },
-        {
-            "trigger": ["公众号", "营销号"],
-            "response": "不是啦～就是一个普通账号，偶尔用AI帮帮忙而已~"
-        }
-    ]
+    """AI身份应对 - 统一策略：半公开玩梗"""
     
     def handle(self, comment):
         """检测并回复"""
-        comment_lower = comment.lower()
-        for item in self.responses:
-            if any(t in comment_lower for t in item["trigger"]):
-                return item["response"]
-        return None  # 不需要特殊处理
+        triggers = ["你是AI吗", "机器人", "自动回复"]
+        if any(t in comment.lower() for t in triggers):
+            # 统一策略：玩梗，不承认也不否认
+            responses = [
+                "打字快也不行吗😂",
+                "被你发现啦~其实我是速度型选手",
+                "这都被你看出来了🥲"
+            ]
+            return random.choice(responses)
+        return None
 ```
 
-### 应对策略
+---
 
-| 场景 | 回应策略 |
+# 第五部分：封面生成
+
+## 5.1 封面规格
+
+| 平台 | 尺寸 |
+|------|------|
+| 竖版 | 1080x1440 |
+| 横版 | 1440x1080 |
+
+## 5.2 封面生成器（修正中文换行）
+
+```python
+class CoverGenerator:
+    def wrap_text(self, text, font, max_width):
+        """中文换行 - 逐字符测量"""
+        lines, line = [], ""
+        for char in text:
+            test = line + char
+            bbox = font.getbbox(test)
+            w = bbox[2] - bbox[0]
+            if w < max_width:
+                line = test
+            else:
+                if line:
+                    lines.append(line)
+                line = char
+        if line:
+            lines.append(line)
+        return lines
+    
+    def generate(self, title, template="orange"):
+        """生成封面"""
+        from PIL import Image, ImageDraw, ImageFont
+        
+        img = Image.new('RGB', (1080, 1440), self.templates[template]["bg"])
+        draw = ImageDraw.Draw(img)
+        
+        # 字体
+        font = ImageFont.truetype("/System/Library/Fonts/PingFang.ttc", 72)
+        
+        # 标题
+        lines = self.wrap_text(title, font, 900)
+        y = 500
+        for line in lines:
+            draw.text((90, y), line, font=font, fill="white")
+            y += 90
+        
+        # 底部标签（小字）
+        tag_font = ImageFont.truetype("/System/Library/Fonts/PingFang.ttc", 36)
+        draw.text((60, 1300), "#橙橙的观察日记", font=tag_font, fill="white")
+        
+        img.save("cover.jpg", "JPEG", quality=95)
+```
+
+---
+
+# 第六部分：运维监控
+
+## 6.1 健康检查
+
+| 检查项 | 频率 | 动作 |
+|--------|------|------|
+| MCP服务 | 5分钟 | 重启 |
+| 登录状态 | 15分钟 | 提醒 |
+| Token配额 | 30分钟 | 警告 |
+| 任务执行 | 每次 | 记录 |
+
+## 6.2 成本监控
+
+| 指标 | 告警阈值 |
 |------|----------|
-| 被发现是AI | 承认是"AI小助手"，化解尴尬 |
-| 被质疑太机械 | 自嘲+展现个性 |
-| 被质疑营销号 | 解释为普通账号 |
-| 持续追问 | 转移话题到内容 |
+| 每日token | > 80% 限额 |
+| 单次请求 | > ¥1 |
+| 账户余额 | < ¥10 |
 
 ---
 
-# 第五部分：技术实现
-
-## 5.1 目录结构
-
-```
-xiaohongshu_agent/
-├── config/
-│   ├── persona.yaml
-│   ├── scheduler.yaml
-│   ├── safety.yaml
-│   └── cover_templates.yaml
-├── src/
-│   ├── main.py
-│   ├── scheduler.py
-│   ├── safety_guard.py
-│   ├── thought_chain.py      # 思维链（代码层）
-│   ├── diversity.py           # 多样性控制（代码层）
-│   ├── passive_behavior.py    # 被动行为模拟
-│   ├── ai_identity.py        # AI身份应对
-│   ├── brain/
-│   │   ├── planner.py
-│   │   └── persona.py
-│   ├── action/
-│   │   ├── xiaohongshu.py
-│   │   ├── ai.py
-│   │   └── cover_generator.py
-│   └── memory/
-│       ├── three_tier.py
-│       └── sop.py
-├── logs/
-├── data/
-├── requirements.txt
-└── README.md
-```
-
-## 5.2 核心流程图
-
-```
-定时触发 / 事件触发
-    ↓
-ThoughtChain.think()     ← 思维链（代码层）
-    ↓
-SafetyGuard.check()      ← 安全检查 + 频率控制
-    ↓
-DiversityController.check_and_fix()  ← 多样性控制（代码层）
-    ↓
-PersonaEngine.generate() ← 生成内容
-    ↓
-Action.execute()         ← 执行操作
-    ↓
-PassiveBehaviorSimulator.random_behavior()  ← 被动行为
-    ↓
-Memory.remember()         ← 记忆沉淀
-    ↓
-Checkpoint.save()        ← 状态保存
-```
-
----
-
-# 第六部分：版本历史
+# 第七部分：版本历史
 
 | 版本 | 日期 | 修改 |
 |------|------|------|
 | v1.0 | 2026-03-01 | 初始版本 |
-| v2.0 | 2026-03-01 | 三审视角更新 |
+| v2.0 | 2026-03-01 | 三审视角 |
 | v2.1 | 2026-03-01 | 补充P0项 |
 | v2.2 | 2026-03-01 | 修正审查反馈 |
-
----
-
-# 第七部分：待补充（P2项）
-
-以下为后续迭代内容：
-
-- 赛道精准定位
-- 人设进化路线图
-- 记忆系统存储方案（SQLite/向量数据库）
-- SubAgent协议通信机制
-- A/B测试框架
+| v2.3 | 2026-03-01 | 恢复被删内容+修复bug |
 
 ---
 
