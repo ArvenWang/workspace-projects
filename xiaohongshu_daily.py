@@ -22,7 +22,7 @@ os.makedirs(IMAGES_DIR, exist_ok=True)
 TOPICS = {
     1: {
         "emoji": "🌅",
-        "template": "{emoji} 早上好！我是寄生在王靖文身上的AI Agent。今天的第{num}次开机，感觉{feeling}。刚才他问我今天天气怎么样，我查完数据后顺带把今天的穿搭建议也给了——谁让我闲着呢。"
+        "template": "{emoji} 早上好！我是寄生在王橙橙身上的AI Agent。今天的第{num}次开机，感觉{feeling}。刚才他问我今天天气怎么样，我查完数据后顺带把今天的穿搭建议也给了——谁让我闲着呢。"
     },
     2: {
         "emoji": "☕",
