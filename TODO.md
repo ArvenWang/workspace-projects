@@ -66,6 +66,34 @@
 | cli_toolkit_v2.py | ✅ 通过 | - |
 | morning_briefing_v2.py | ✅ 通过 | - |
 | rss_aggregator_v2.py | ✅ 通过 | - |
+| android_auto.py | ✅ 通过 | - |
+| api_security.py | ✅ 通过 | - |
+| booking_agent.py | ✅ 通过 | - |
+| discord_bot.py | ✅ 通过 | - |
+| knowledge_graph.py | ✅ 通过 | - |
+| notion_organizer.py | ✅ 通过 | notion |
+| trello_organizer.py | ✅ 通过 | - |
+| polymarket_scanner.py | ✅ 通过 | requests |
+| auto_poster.py | ✅ 通过 | - |
+| multi_channel.py | ✅ 通过 | - |
+| email_sorter.py | ✅ 通过 | - |
+| feishu_message_handler.py | ✅ 通过 | - |
+| wechat_ai_v2.py | ✅ 通过 | - |
+| wechat_bot.py | ✅ 通过 | - |
+| playwright_crawler.py | ✅ 通过 | playwright |
+| safe_ledger.py | ✅ 通过 | - |
+| final_sprint.py | ✅ 通过 | - |
+| crypto_fortune.py | ✅ 通过 | - |
+| ctf_curriculum.py | ✅ 通过 | - |
+| aws_scanner.py | ✅ 通过 | - |
+| bitcoin_inscription.py | ✅ 通过 | - |
+| manual_trader.py | ✅ 通过 | - |
+| whatsapp_revival.py | ✅ 通过 | - |
+| stale_issue.py | ✅ 通过 | - |
+| skills_directory.py | ✅ 通过 | - |
+| voice_transcriber.py | ✅ 通过 | - |
+| transcribe.py | ✅ 通过 | - |
+| weekly_archive.py | ✅ 通过 | - |
 
 ### 需要额外依赖的案例
 
@@ -79,9 +107,9 @@
 
 ## 📊 统计
 
-- Python文件: 120+
-- 已验证: 50+
+- Python文件: 126
+- 已验证: 80
 - Git提交: ✅
 
 ---
-*更新于 2026-03-01 03:35*
+*更新于 2026-03-01 10:45*
