@@ -1,0 +1,47 @@
+# 小红书 SubAgent 运行时配置
+
+# MCP 配置
+xiaohongshu:
+  mcp_url: "http://localhost:18060/mcp"
+
+# LLM 配置
+llm:
+  provider: "minimax"
+  api_key: "${MINIMAX_API_KEY}"
+  base_url: "https://api.minimax.chat/v1"
+  model: "MiniMax-M2.1"
+
+# 成本管理
+cost:
+  provider: "minimax"
+  daily_token_limit: 500000
+  single_request_limit: 10000
+  daily_cost_limit: 10.0
+  usage_file: "data/cost.json"
+
+# 安全配置
+safety:
+  account_age_days: 0
+  wordlist_path: "config/sensitive_words.txt"
+
+# 记忆配置
+memory:
+  db_path: "data/memory.db"
+
+# 协议配置
+protocol:
+  task_queue: "data/task_queue"
+  status_file: "data/subagent_status.json"
+
+# 封面配置
+cover:
+  template_dir: "../cover-templates"
+  output_dir: "data/covers"
+
+# 调度配置
+heartbeat_file: "/tmp/xhs_agent_heartbeat"
+checkpoint_file: "data/checkpoint.json"
+
+# 热点配置
+hotspot:
+  cache_ttl: 300
