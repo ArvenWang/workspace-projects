@@ -1368,3 +1368,77 @@ psutil>=5.9.0
 ---
 
 *本方案由 OpenClaw AI 生成，经 Anthropic 三重视角审视重写，v3.1 独立新号身份重构*
+
+
+---
+# 第八部分：实施修正 (v3.1.1)
+
+## 8.1 search_feeds 参数修复
+```python
+def search_feeds(self, keyword, page=1, page_size=10):
+    for args in [{"keyword": keyword}, {"keyword": keyword, "page": page, "page_size": page_size}, {"keyword": keyword, "sort": "general"}]:
+        try:
+            r = self.call("search_feeds", args)
+            if r.get("result"): return r
+        except: continue
+    return self.get_feeds_by_tag(keyword)
+```
+
+## 8.2 热点分析 (hotspot.py)
+```python
+import requests
+from datetime import datetime
+
+class HotspotAnalyzer:
+    def __init__(self): self.c, self.ttl = {}, 300
+    
+    def get_hot_topics(self):
+        if self._valid("t"): return self.c["t"]
+        t = [] + self._wb() + self._zh() + self._xhs()
+        self.c["t"], self.c["t_t"] = t, datetime.now().timestamp()
+        return t
+    
+    def _wb(self):
+        try:
+            d = requests.get("https://weibo.com/ajax/side/hotSearch", timeout=10).json()
+            return [{"p":"weibo","topic":i["word"]} for i in d["data"]["realtime"][:10]] if d.get("ok")==1
+        except: return []
+    
+    def _zh(self):
+        try:
+            d = requests.get("https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total", headers={"User-Agent":"M"}, timeout=10).json()
+            return [{"p":"zhihu","topic":i["target"]["title"]} for i in d["data"][:10]] if d.get("data") else []
+        except: return []
+    
+    def _xhs(self):
+        try:
+            d = requests.get("https://edith.xiaohongshu.com/api/sns/web/v1/search/hot_words", timeout=10).json()
+            return [{"p":"xhs","topic":i["word"]} for i in d["data"][:10]] if d.get("data") else []
+        except: return []
+    
+    def get_ai_topics(self):
+        kw = ["AI","人工智能","ChatGPT","GPT","编程","科技"]
+        return [t for t in self.get_hot_topics() if any(k in t.get("topic","") for k in kw)][:5]
+    
+    def _valid(self, k): return (datetime.now().timestamp()-self.c.get(f"{k}_t",0)) < self.ttl
+```
+
+## 8.3 API成本修复
+```python
+class CostManager:
+    PRICE = {"minimax": {"in": 0.01, "out": 0.03}}
+    def __init__(self, cfg):
+        p = cfg.get("provider", "minimax")
+        self.price = self.PRICE.get(p, self.PRICE["minimax"])
+```
+
+## 8.4 SafetyGuard 实现
+```python
+def review_high_risk(self, c, w):
+    try: return json.loads(self.llm.generate(f"审核: {w} {c}"))
+    except: return {"safe": False}
+```
+
+---
+*v3.1.1 修复完成*
+
