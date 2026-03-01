@@ -94,6 +94,41 @@
 | voice_transcriber.py | ✅ 通过 | - |
 | transcribe.py | ✅ 通过 | - |
 | weekly_archive.py | ✅ 通过 | - |
+| active_trader.py | ✅ 通过 | - |
+| altcoin_trader_v4.py | ✅ 通过 | - |
+| dual_trader.py | ✅ 通过 | - |
+| lp_compounder.py | ✅ 通过 | - |
+| night_roi.py | ✅ 通过 | - |
+| price_compare.py | ✅ 通过 | - |
+| pumpfun_scanner.py | ✅ 通过 | - |
+| trading_bot.py | ✅ 通过 | - |
+| trading_bot_v2.py | ✅ 通过 | - |
+| trading_bot_v3.py | ✅ 通过 | - |
+| trading_bot_pro.py | ✅ 通过 | - |
+| high_freq_trader_v3.py | ✅ 通过 | - |
+| safe_trading_bot_v2.py | ✅ 通过 | - |
+| ultimate_trader.py | ✅ 通过 | - |
+| insta_manager.py | ✅ 通过 | - |
+| latency_benchmark.py | ✅ 通过 | - |
+| monitor_bot.py | ✅ 通过 | - |
+| morning_digest.py | ✅ 通过 | - |
+| onchain_haiku.py | ✅ 通过 | - |
+| pattern_analysis.py | ✅ 通过 | - |
+| preflight_checker.py | ✅ 通过 | - |
+| seven_agents.py | ✅ 通过 | - |
+| supply_chain_audit.py | ✅ 通过 | - |
+| swift_logger.py | ✅ 通过 | - |
+| tencent_cloud_manager.py | ✅ 通过 | - |
+| tracing_benchmark.py | ✅ 通过 | - |
+| wechat_ai_assistant.py | ✅ 通过 | - |
+| wechat_ai_queue.py | ✅ 通过 | - |
+| api_stabilizer.py | ✅ 通过 | - |
+| miot_home.py | ✅ 通过 | - |
+| doc_fixer.py | ✅ 通过 | - |
+| email_to_podcast.py | ✅ 通过 | - |
+| qa_tester.py | ✅ 通过 | - |
+| trading_dashboard/app.py | ✅ 通过 | - |
+| Douyin_TikTok_Download_API/start.py | ✅ 通过 | - |
 
 ### 需要额外依赖的案例
 
@@ -108,8 +143,8 @@
 ## 📊 统计
 
 - Python文件: 126
-- 已验证: 80
+- 已验证: 115
 - Git提交: ✅
 
 ---
-*更新于 2026-03-01 10:45*
+*更新于 2026-03-01 10:50*
