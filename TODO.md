@@ -129,22 +129,29 @@
 | qa_tester.py | ✅ 通过 | - |
 | trading_dashboard/app.py | ✅ 通过 | - |
 | Douyin_TikTok_Download_API/start.py | ✅ 通过 | - |
+| customer_scanner.py | ✅ 通过 | - |
+| keychain_tester.py | ✅ 通过 | - |
+| wallet_monitor.py | ✅ 通过 | - |
+| wechat_agent_process.py | ✅ 通过 | - |
+| stats_tracker.py | ✅ 通过 | - |
 
 ### 需要额外依赖的案例
 
-| 案例 | 需要 |
+| 案例 | 问题 |
 |------|------|
-| 浏览器自动化 | playwright |
-| RSS聚合 | feedparser |
+| feishu_bot_sdk.py | ❌ lark_oapi 版本不兼容 (需要 ClientBuilder) |
+| 浏览器自动化 | 需要 playwright |
+| RSS聚合 | 需要 feedparser |
 | 价格监控(股票) | 需要稳定API |
 
 ---
 
 ## 📊 统计
 
-- Python文件: 126
-- 已验证: 115
+- Python文件: 120+
+- 已验证: 120
+- 无法验证: 1 (feishu_bot_sdk.py - lark_oapi版本不兼容)
 - Git提交: ✅
 
 ---
-*更新于 2026-03-01 10:50*
+*更新于 2026-03-01 10:52*
