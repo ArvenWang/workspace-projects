@@ -1,0 +1,40 @@
+{
+  "keywords": {
+    "飞书": {
+      "topics": ["notification"],
+      "files": ["conversations/2026-02-24.jsonl", "topics/notification/README.md"],
+      "decisions": ["飞书定时推送技术方案"]
+    },
+    "定时": {
+      "topics": ["notification", "automation"],
+      "files": ["conversations/2026-02-24.jsonl", "topics/notification/README.md"],
+      "decisions": ["飞书定时推送技术方案"]
+    },
+    "漫剧": {
+      "topics": ["manju"],
+      "files": ["conversations/2026-02-24.jsonl", "topics/manju/README.md"],
+      "tasks": ["AI漫剧市场调研"]
+    },
+    "AI视频": {
+      "topics": ["manju"],
+      "files": ["topics/manju/README.md"],
+      "tools": ["Fal.ai", "GoEnhance", "Magic Hour"]
+    },
+    "抖音": {
+      "topics": ["manju"],
+      "files": ["topics/manju/README.md"],
+      "decisions": ["漫剧上架路径选择"]
+    },
+    "记忆": {
+      "topics": ["infrastructure"],
+      "files": ["memory/README.md", "memory/SYSTEM.md", "topics/infrastructure/README.md"],
+      "decisions": ["记忆系统架构"]
+    },
+    "cron": {
+      "topics": ["notification", "automation"],
+      "files": ["topics/notification/README.md"],
+      "decisions": ["飞书定时推送技术方案"]
+    }
+  },
+  "last_updated": "2026-02-24T10:05:00+08:00"
+}

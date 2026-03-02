@@ -1,0 +1,123 @@
+[
+  {
+    "platform": "B站短剧",
+    "url": "https://www.bilibili.com/v/channel/shortplay",
+    "test_time": "2026-02-28T10:44:26.355374",
+    "status": "anti_crawl",
+    "details": {
+      "status_code": 200,
+      "final_url": "https://www.bilibili.com/v/channel/shortplay",
+      "title": "验证码_哔哩哔哩",
+      "requires_login": true,
+      "anti_crawl_detected": true,
+      "video_cards_count": 0,
+      "titles_count": 0,
+      "play_counts_count": 0
+    },
+    "screenshots": [
+      "/Users/wangjingwen/.openclaw/workspace/research/manju/data/test_results/B站短剧_20260228_104432.png"
+    ]
+  },
+  {
+    "platform": "小红书-漫剧搜索",
+    "url": "https://www.xiaohongshu.com/search_result?keyword=AI漫剧",
+    "test_time": "2026-02-28T10:44:33.002672",
+    "status": "anti_crawl",
+    "details": {
+      "status_code": 200,
+      "final_url": "https://www.xiaohongshu.com/search_result/?keyword=AI%E6%BC%AB%E5%89%A7",
+      "title": "AI漫剧 - 小红书搜索",
+      "requires_login": true,
+      "anti_crawl_detected": true,
+      "notes_count": 0,
+      "titles_count": 4,
+      "images_count": 23
+    },
+    "screenshots": [
+      "/Users/wangjingwen/.openclaw/workspace/research/manju/data/test_results/小红书-漫剧搜索_20260228_104438.png"
+    ]
+  },
+  {
+    "platform": "抖音-短剧搜索",
+    "url": "https://www.douyin.com/search/AI%E6%BC%AB%E5%89%A7",
+    "test_time": "2026-02-28T10:44:40.323152",
+    "status": "error",
+    "details": {
+      "error": "Page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://www.douyin.com/search/AI%E6%BC%AB%E5%89%A7\", waiting until \"networkidle\"\n"
+    },
+    "screenshots": []
+  },
+  {
+    "platform": "快手-短剧",
+    "url": "https://www.kuaishou.com/short-play",
+    "test_time": "2026-02-28T10:45:10.498133",
+    "status": "login_required",
+    "details": {
+      "status_code": 200,
+      "final_url": "https://www.kuaishou.com/404",
+      "title": "404 - 快手",
+      "requires_login": true,
+      "anti_crawl_detected": false,
+      "videos_count": 0,
+      "titles_count": 1,
+      "authors_count": 0
+    },
+    "screenshots": [
+      "/Users/wangjingwen/.openclaw/workspace/research/manju/data/test_results/快手-短剧_20260228_104515.png"
+    ]
+  },
+  {
+    "platform": "微信视频号",
+    "url": "https://channels.weixin.qq.com/",
+    "test_time": "2026-02-28T10:45:16.569906",
+    "status": "login_required",
+    "details": {
+      "status_code": 200,
+      "final_url": "https://channels.weixin.qq.com/login.html",
+      "title": "视频号助手",
+      "requires_login": true,
+      "anti_crawl_detected": false
+    },
+    "screenshots": [
+      "/Users/wangjingwen/.openclaw/workspace/research/manju/data/test_results/微信视频号_20260228_104526.png"
+    ]
+  },
+  {
+    "platform": "豆瓣-短剧讨论",
+    "url": "https://www.douban.com/search?q=短剧",
+    "test_time": "2026-02-28T10:45:28.152704",
+    "status": "login_required",
+    "details": {
+      "status_code": 200,
+      "final_url": "https://www.douban.com/search?q=%E7%9F%AD%E5%89%A7",
+      "title": "搜索: 短剧",
+      "requires_login": true,
+      "anti_crawl_detected": false,
+      "topics_count": 0,
+      "titles_count": 0,
+      "discussions_count": 0
+    },
+    "screenshots": [
+      "/Users/wangjingwen/.openclaw/workspace/research/manju/data/test_results/豆瓣-短剧讨论_20260228_104533.png"
+    ]
+  },
+  {
+    "platform": "知乎-AI漫剧讨论",
+    "url": "https://www.zhihu.com/search?type=content&q=AI漫剧",
+    "test_time": "2026-02-28T10:45:33.970225",
+    "status": "anti_crawl",
+    "details": {
+      "status_code": 403,
+      "final_url": "https://www.zhihu.com/search?type=content&q=AI%E6%BC%AB%E5%89%A7",
+      "title": "AI漫剧 - 搜索结果 - 知乎",
+      "requires_login": true,
+      "anti_crawl_detected": true,
+      "answers_count": 0,
+      "titles_count": 0,
+      "votes_count": 0
+    },
+    "screenshots": [
+      "/Users/wangjingwen/.openclaw/workspace/research/manju/data/test_results/知乎-AI漫剧讨论_20260228_104542.png"
+    ]
+  }
+]

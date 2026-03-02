@@ -1,0 +1,3 @@
+# 飞书目标配置
+USER_OPEN_ID=ou_d62bc39aafec8dcee9e68c31331e9965
+CHANNEL=feishu

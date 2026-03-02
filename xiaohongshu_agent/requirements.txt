@@ -1,0 +1,8 @@
+# 小红书 SubAgent 依赖
+
+requests>=2.31.0
+pyyaml>=6.0
+python-croniter>=2.0.0
+playwright>=1.40.0
+filelock>=3.12.0
+psutil>=5.9.0

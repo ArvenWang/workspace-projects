@@ -1,0 +1,142 @@
+{
+  "permissions": [
+    {
+      "permission_key": "im:message:send",
+      "name": "发送消息",
+      "description": "允许机器人发送单聊和群组消息",
+      "category": "消息",
+      "required": true
+    },
+    {
+      "permission_key": "im:message.group_msg",
+      "name": "发送群组消息",
+      "description": "允许机器人在群组中发送消息",
+      "category": "消息",
+      "required": true
+    },
+    {
+      "permission_key": "im:message:send_as_bot",
+      "name": "以机器人身份发送",
+      "description": "允许以机器人身份发送消息",
+      "category": "消息",
+      "required": true
+    },
+    {
+      "permission_key": "im:resource",
+      "name": "访问消息资源",
+      "description": "访问消息中的图片、文件、音频等资源（收发图片/文件必须）",
+      "category": "消息",
+      "required": true
+    },
+    {
+      "permission_key": "im:message.file:readonly",
+      "name": "读取文件消息",
+      "description": "读取用户发送的文件消息内容（接收文件必须）",
+      "category": "消息",
+      "required": true
+    },
+    {
+      "permission_key": "im:message.group_msg:readonly",
+      "name": "读取群组消息",
+      "description": "读取群组中的消息内容",
+      "category": "消息",
+      "required": true
+    },
+    {
+      "permission_key": "im:chat:readonly",
+      "name": "读取会话信息",
+      "description": "读取会话的基本信息",
+      "category": "会话",
+      "required": true
+    },
+    {
+      "permission_key": "im:chat",
+      "name": "获取群组信息",
+      "description": "获取群组的详细信息",
+      "category": "会话",
+      "required": true
+    },
+    {
+      "permission_key": "contact:user.base:readonly",
+      "name": "读取用户基本信息",
+      "description": "获取用户的基本资料",
+      "category": "用户",
+      "required": true
+    },
+    {
+      "permission_key": "contact:user.department:readonly",
+      "name": "读取用户部门信息",
+      "description": "获取用户所在的部门信息",
+      "category": "用户",
+      "required": false
+    },
+    {
+      "permission_key": "drive:drive:readonly",
+      "name": "读取云空间",
+      "description": "读取云文档和云空间内容（文件存储可选）",
+      "category": "云文档",
+      "required": false
+    },
+    {
+      "permission_key": "drive:file:readonly",
+      "name": "读取文件",
+      "description": "读取云文档中的文件（文件存储可选）",
+      "category": "云文档",
+      "required": false
+    },
+    {
+      "permission_key": "drive:file:write",
+      "name": "写入文件",
+      "description": "上传文件到云文档（文件存储可选）",
+      "category": "云文档",
+      "required": false
+    }
+  ],
+  "events": [
+    {
+      "event_key": "im.message.receive_v1",
+      "name": "接收消息",
+      "description": "接收用户发送的文字消息",
+      "required": true
+    },
+    {
+      "event_key": "im.message.file.receive_v1",
+      "name": "接收文件消息",
+      "description": "接收用户发送的文件（收发文件必须）",
+      "required": true
+    },
+    {
+      "event_key": "im.message.image.receive_v1",
+      "name": "接收图片消息",
+      "description": "接收用户发送的图片（收发图片必须）",
+      "required": true
+    },
+    {
+      "event_key": "im.message.group_message.receive_v1",
+      "name": "接收群消息",
+      "description": "接收群组中的消息",
+      "required": true
+    }
+  ],
+  "import_instructions": {
+    "steps": [
+      "1. 登录飞书开放平台：https://open.feishu.cn/app",
+      "2. 进入你的应用",
+      "3. 左侧菜单 -> '权限管理' -> '权限配置'",
+      "4. 点击'批量更新权限'",
+      "5. 将上方'permission_key'列表中的权限全部勾选",
+      "6. 保存权限配置",
+      "7. 进入'事件订阅'页面",
+      "8. 添加'event_key'列表中的所有事件",
+      "9. 配置事件订阅地址（你的OpenClaw Gateway地址）",
+      "10. 验证并保存"
+    ],
+    "notes": [
+      "✅ 标记为required的权限是必须的，否则无法正常工作",
+      "📎 收发图片/文件必须开启：im:resource, im:message.file:readonly",
+      "📎 接收图片必须订阅：im.message.image.receive_v1",
+      "📎 接收文件必须订阅：im.message.file.receive_v1",
+      "⚠️ 修改权限后需要重新发布应用才能生效"
+    ]
+  }
+}
