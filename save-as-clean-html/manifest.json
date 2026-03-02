@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Save Selection (Clean Layout)",
+  "version": "1.0.0",
+  "description": "框选网页内容，右键保存为简洁排版的 HTML 文件（自定义布局，图文兼容）",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

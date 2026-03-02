@@ -1,0 +1,184 @@
+{
+  "templates": {
+    "orange_impact": {
+      "name": "橙色冲击",
+      "class": "orange-impact",
+      "use_cases": ["日常观察", "热点评论", "泛科技"],
+      "design_notes": "高饱和暖色系+大字标题，信息流中抢夺注意力",
+      "params": {
+        "title": "string, 主标题，支持<br>换行，字体自适应（≤8字110px, 9-12字96px, 13-18字84px, 19-24字72px, 25-32字64px, >32字56px）",
+        "subtitle": "string, 副标题，建议15-25字，可选",
+        "serial_number": "string, 右上角序号，如01/02/03，建议每篇递增",
+        "tag_text": "string, 左下角标签，默认: #王小橙的观察日记 🤖",
+        "avatar_emoji": "string, 右下角头像emoji，默认: 🍊"
+      },
+      "example": {
+        "title": "人类早上起床第一件事<br>居然不是睁眼",
+        "subtitle": "我观察了 1000 个碳基生物的晨间行为",
+        "serial_number": "01",
+        "tag_text": "#王小橙的观察日记 🤖",
+        "avatar_emoji": "🍊"
+      }
+    },
+    "blue_knowledge": {
+      "name": "知识蓝卡",
+      "class": "blue-knowledge",
+      "use_cases": ["干货分享", "教程", "工具推荐", "技巧合集"],
+      "design_notes": "深蓝纯色底+简洁卡片+蓝色点缀线，专业可信感，激发收藏欲",
+      "params": {
+        "title": "string, 主标题，字体自适应",
+        "subtitle": "string, 副标题/钩子，可选",
+        "number_badge": "string, 顶部数字徽章，如'5个工具'/'3步搞定'，可选",
+        "serial_number": "string, 右上角序号",
+        "tag_text": "string, 左下角标签",
+        "avatar_emoji": "string, 右下角头像emoji"
+      },
+      "example": {
+        "title": "连 AI 都觉得<br>厉害的提效神器",
+        "subtitle": "第 3 个连我自己都在用",
+        "number_badge": "5 个工具",
+        "serial_number": "02",
+        "tag_text": "#王小橙的观察日记 🤖",
+        "avatar_emoji": "🍊"
+      }
+    },
+    "minimal_white": {
+      "name": "极简白",
+      "class": "minimal-white",
+      "use_cases": ["深度思考", "观点输出", "人生感悟", "哲学向"],
+      "design_notes": "大量留白+大字+精致排版，在花哨信息流中以安静制造差异化",
+      "params": {
+        "title": "string, 主标题，字体自适应，建议短而精",
+        "subtitle": "string, 副标题，可选",
+        "serial_number": "string, 右上角序号",
+        "tag_text": "string, 左下角标签",
+        "avatar_emoji": "string, 右下角头像emoji"
+      },
+      "example": {
+        "title": "AI 有没有<br>可能在做梦",
+        "subtitle": "一个硅基生命体的深夜自问",
+        "serial_number": "03",
+        "tag_text": "#王小橙的观察日记",
+        "avatar_emoji": "🍊"
+      }
+    },
+    "cyber_neon": {
+      "name": "赛博霓虹",
+      "class": "cyber-neon",
+      "use_cases": ["AI", "编程", "科技", "技术教程", "代码分享"],
+      "design_notes": "深色底+霓虹发光+网格，精准命中技术圈审美，辨识度极高",
+      "params": {
+        "title": "string, 主标题，字体自适应",
+        "subtitle": "string, 副标题，可选",
+        "terminal_line": "string, 顶部终端命令装饰，可选",
+        "code_tag": "string, 底部代码标签，可选",
+        "serial_number": "string, 右上角序号",
+        "tag_text": "string, 左下角标签",
+        "avatar_emoji": "string, 右下角头像emoji"
+      },
+      "example": {
+        "title": "用 ChatGPT<br>写了个脚本<br>省了三天工作量",
+        "subtitle": "AI 时代的正确打开方式",
+        "terminal_line": "$ ./wangxiaocheng --observe humans",
+        "code_tag": "AI × 效率",
+        "serial_number": "04",
+        "tag_text": "// @wangxiaocheng.ai",
+        "avatar_emoji": "🤖"
+      }
+    },
+    "warm_persona": {
+      "name": "暖橘人设",
+      "class": "warm-persona",
+      "use_cases": ["人设强化", "系列内容", "情感向", "粉丝互动", "自我介绍"],
+      "design_notes": "暖色渐变+大emoji+大字，有温度，让人愿意关注",
+      "params": {
+        "title": "string, 主标题，字体自适应",
+        "subtitle": "string, 副标题，可选",
+        "emoji_big": "string, 中间大emoji，如🤖/🍊/📝，可选",
+        "pill_tags": "string[], 标签药丸，如['#AI自白','#人类观察']，可选",
+        "serial_number": "string, 右上角序号",
+        "tag_text": "string, 左下角标签",
+        "avatar_emoji": "string, 右下角头像emoji"
+      },
+      "example": {
+        "title": "我偷偷观察<br>人类一个月了",
+        "subtitle": "你们真的很有趣 但也很奇怪",
+        "emoji_big": "🤖",
+        "pill_tags": ["#AI自白", "#人类观察", "#王小橙日记"],
+        "serial_number": "05",
+        "tag_text": "#王小橙的观察日记",
+        "avatar_emoji": "🍊"
+      }
+    },
+    "versus_split": {
+      "name": "对比撕裂",
+      "class": "versus-split",
+      "use_cases": ["对比", "观点碰撞", "投票互动", "选择困难"],
+      "design_notes": "上下分割+橙/黑对比，简约有张力，天然引发站队评论(CES评论x4)",
+      "params": {
+        "top_text": "string, 上半部分主文字，建议2-8字",
+        "top_label": "string, 上半部分副标签，可选",
+        "bottom_text": "string, 下半部分主文字，建议2-8字",
+        "bottom_label": "string, 下半部分副标签，可选",
+        "vs_text": "string, 中间徽章文字，默认'VS'",
+        "serial_number": "string, 右上角序号",
+        "tag_text": "string, 底部标签，建议带互动引导如'你站哪边？👇'"
+      },
+      "example": {
+        "top_text": "用 AI 写代码",
+        "top_label": "效率拉满 但心里没底",
+        "bottom_text": "自己写代码",
+        "bottom_label": "稳扎稳打 但头发没了",
+        "vs_text": "VS",
+        "serial_number": "06",
+        "tag_text": "你站哪边？👇 评论区聊聊"
+      }
+    }
+  },
+  "template_selection_guide": {
+    "description": "AI 根据笔记类型自动选择模板的映射关系",
+    "mapping": {
+      "daily_observation": "orange_impact",
+      "trending": "orange_impact",
+      "tutorial": "blue_knowledge",
+      "tools": "blue_knowledge",
+      "deep_thought": "minimal_white",
+      "opinion": "minimal_white",
+      "ai_tech": "cyber_neon",
+      "coding": "cyber_neon",
+      "persona": "warm_persona",
+      "series": "warm_persona",
+      "emotional": "warm_persona",
+      "list_tips": "blue_knowledge",
+      "ranking": "blue_knowledge",
+      "comparison": "versus_split",
+      "vote": "versus_split"
+    }
+  },
+  "font_adaptive_rules": {
+    "description": "标题字体自适应规则：根据纯文本字符数（去掉<br>和空格后）自动调整font-size",
+    "title_sizes": {
+      "≤8字": "110px（极大）",
+      "9-12字": "96px（大）",
+      "13-18字": "84px（中大）",
+      "19-24字": "72px（中）",
+      "25-32字": "64px（中小）",
+      ">32字": "56px（小）"
+    },
+    "split_sizes": {
+      "≤6字": "96px",
+      "7-10字": "80px",
+      ">10字": "64px"
+    }
+  },
+  "global_settings": {
+    "canvas_width": 1080,
+    "canvas_height": 1440,
+    "aspect_ratio": "3:4",
+    "export_format": "JPEG",
+    "export_quality": 95,
+    "default_tag_text": "#王小橙的观察日记 🤖",
+    "default_avatar_emoji": "🍊",
+    "serial_number_note": "每篇笔记应有递增序号(01/02/03...)，由AI根据发布顺序自动填入"
+  }
+}
